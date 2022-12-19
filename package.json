@@ -1,0 +1,40 @@
+{
+  "name": "gd-modmanager",
+  "productName": "gd-modmanager",
+  "version": "0.0.1",
+  "description": "Mod Manager and Installer for Geometry Dash",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder build -w"
+  },
+  "keywords": [],
+  "author": {
+    "name": "KontrollFreek",
+    "email": "williambush357@gmail.com"
+  },
+  "build": {
+    "appId": "dev.kontroll.modmanager",
+    "win": {
+      "target": "portable"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "deb"
+    },
+    "portable": {
+      "unicode": false,
+      "artifactName": "ModManager.exe"
+    }
+  },
+  "license": "MIT",
+  "dependencies": {
+    "decompress": "^4.2.1"
+  },
+  "devDependencies": {
+    "electron": "^19.0.10",
+    "electron-builder": "^23.3.3"
+  }
+}

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>ModManager</title>
+  <link rel="stylesheet" href="./index.css" />
+</head>
+
+<body>
+  <div id="modalcontainer"><div id="modal"><span id="topsection"><h1></h1><button>&#xF62A;</button></span><main></main></div></div>
+  <nav>
+    <span>
+      <img src="../assets/icon.png" width="25" height="25" style="margin-right: 10px;" alt="GD ModManager Logo"/>
+      <h4>ModManager</h4>
+    </span>
+    <span id="controls">
+        <button id="min"><svg width="12" height="12" viewBox="0 0 12 12"><rect fill="currentColor" width="10" height="1" x="1" y="6"></rect></svg></button>
+        <button id="max"><svg width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect></svg></button>
+        <button onclick="window.close()" id="close"><svg width="12" height="12" viewBox="0 0 12 12"><polygon fill="currentColor" fill-rule="evenodd" points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"></polygon></svg></button>
+    </span>
+  </nav>
+
+  <aside>
+    <span>
+      <a href="javascript:page('store')" data-page="store"><span>&#xF242;</span>Store</a>
+      <a href="javascript:page('library')" data-page="library"><span>&#xF2CC;</span>Mod Library</a>
+      <a href="javascript:page('downloads')" data-page="downloads"><span>&#xF30A;</span>Downloads</a>
+    </span>
+    <span>
+      <a href="javascript:page('settings')" data-page="settings"><span>&#xF3E5;</span>Settings</a>
+      <a href="javascript:page('changelog')" data-page="changelog"><span>&#xF292;</span>Changelog</a>
+    </span>
+    <div><a href="steam://rungameid/322170"><span>&#xF4F5;</span>Play</a></div>
+  </aside>
+
+  <main>
+    <center style="height: 100%; flex-direction: column;">
+      <img id="icon" src="../assets/icon.svg" style="transform: translateY(60px); opacity: 0; transition: 400ms ease-out" height="100" width="100" alt="GD ModManager Logo">
+      <loading id="load" style="position: absolute; bottom: calc(50% - 110px); opacity: 0"></loading>
+      <h2 style="margin: 10px 0px; transform: translateY(10px); opacity: 0; transition: 200ms ease-out">Welcome Back!</h2>
+      <p style="transform: translateY(10px); opacity: 0; transition: 200ms ease-out">To continue, navigate the sidebar to the left.</p>
+      <p style="font-size: 70%; transform: translateY(10px); opacity: 0; transition: 200ms ease-out" class="muted">Not sure where to go? <a href="javascript:page('store')">Visit the Store</a>, <a href="javascript:page('library')">Manage your Mods</a>, or <a href="javascript:page('settings')">Change some Settings</a>.</p>
+    </center>
+  </main>
+</body>
+
+<script>
+  const { ipcRenderer } = require('electron')
+  const modal = require('./modal')
+  const fs = require('fs')
+  const path = require('path')
+  const setup = require('./setup')
+  const page = require('./page')
+  const mods = {}
+
+  document.getElementById('min').addEventListener('click', () => {
+      ipcRenderer.send('min')
+  })
+
+  document.getElementById('max').addEventListener('click', () => {
+      ipcRenderer.send('max')
+  })
+
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+  window.addEventListener('load', async () => {
+    await wait(500)
+    document.getElementById('icon').style.transform = 'translateY(50px)'
+    document.getElementById('icon').style.opacity = '1'
+    await wait(300)
+
+    await new Promise(async resolve => {
+      document.getElementById('load').style.opacity = '1'
+      await wait(300)
+      if (localStorage.NEWUSER == undefined || localStorage.NEWUSER != 'false') {
+        document.querySelector('center h2').innerText = 'Welome to GD ModManager'
+        document.querySelectorAll('center p')[0].innerHTML = 'To get started, <a href="javascript:setup()">run a quick setup</a>.'
+        document.querySelectorAll('center p')[1].innerText = 'The setup will make sure your game has a modloader, and will integrate with your current one if available'
+        document.querySelectorAll('aside *').forEach(e => { e.style.display = 'none' })
+        localStorage.MHV7 = false
+        localStorage.GDDIR = 'C:/Program Files (x86)/Steam/steamapps/common/Geometry Dash/'
+      } else {
+        let _m = await fs.readdirSync(path.join(localStorage.GDDIR, 'quickldr'))
+        _m.forEach(f => { if (f.endsWith('.dll')) mods[f.slice(0, -4)] = { enabled: false } })
+        await fs.readFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -4)] != undefined) mods[m.slice(0, -4)].enabled = true })
+        console.log(mods)
+      }
+      document.getElementById('load').style.opacity = '0'
+      await wait(300)
+      resolve()
+    })
+
+    document.getElementById('icon').style.transform = 'translateY(-10px) rotate(15deg)';
+
+    (async function () {
+      if (localStorage.NEWUSER == 'false') {
+        document.querySelectorAll('body > main, body > aside').forEach(e => { e.style.transition = '800ms ease-in-out' })
+        document.querySelector('body > main').style.width = 'calc(-220px + 100vw)'
+        document.querySelector('body > main').style.borderTopLeftRadius = '14px'
+        document.querySelector('body > aside').style.minWidth = '220px'
+        document.querySelector('body > aside').style.maxWidth = '220px'
+        document.querySelector('body > aside').style.padding = '7px'
+        await wait(800)
+        document.querySelectorAll('body > main, body > aside').forEach(e => { e.style.transition = '' })
+      }
+    })()
+
+    await wait(500)
+    document.querySelectorAll('center h2, center p')[0].style.transform = 'translateY(0px)'
+    document.querySelectorAll('center h2, center p')[0].style.opacity = '1'
+    await wait(100)
+    document.querySelectorAll('center h2, center p')[1].style.transform = 'translateY(0px)'
+    document.querySelectorAll('center h2, center p')[1].style.opacity = '1'
+    await wait(100)
+    document.querySelectorAll('center h2, center p')[2].style.transform = 'translateY(0px)'
+    document.querySelectorAll('center h2, center p')[2].style.opacity = '1'
+    await wait(100)
+
+    let e = document.querySelectorAll('aside span a')
+    for (let i = 0; i < e.length; i++) {
+      await wait(100)
+      e[i].style.transform = 'translateY(0px)'
+      e[i].style.opacity = '1'
+    }
+    await wait(100)
+    document.querySelector('aside div').style.transform = 'translateY(0px)'
+    document.querySelector('aside div').style.opacity = '1'
+  })
+</script>
+
+</html>

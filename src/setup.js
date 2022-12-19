@@ -1,0 +1,131 @@
+const modal = require('./modal')
+const fs = require('fs')
+const https = require('https')
+const path = require('path')
+const decompress = require('decompress')
+
+const setup = () => new Promise(async (resolve, reject) => {
+    const setupwindow = await modal({ mouseLeave: false, close: false, title: 'Setup', })
+    setupwindow.innerHTML = `<pre style="
+        width: 100%;
+        height: 100%;
+        background: #121313;
+        border: 1px solid #495057;
+        border-radius: 6px;
+        height: 300px;
+        margin: 0px;
+        display: flex;
+        justify-content: stretch;
+        align-items: flex-start;
+        flex-direction: column;
+        overflow-y: auto;
+    "></pre>`
+    let console = setupwindow.querySelector('pre')
+    await wait(200)
+
+    function printconsole(input, type = 'log') {
+        let color
+        switch (type) {
+            default:
+            case 'log':
+                color = '#f0f0f0'
+                break
+            case 'error':
+                color = '#dc3545'
+                break
+            case 'warning':
+                color = '#ffc107'
+                break
+            
+        }
+        console.innerHTML += `<code style="
+            width: calc(100% - 8px);
+            padding: 4px;
+            background: ${console.querySelectorAll('code').length % 2 != 0 ? '#212529' : 'transparent'};
+            white-space: pre-wrap;
+            color: ${color};
+        ">${input}</code>`
+        console.scrollTop = console.scrollHeight
+    }
+
+    printconsole('Starting Setup')
+
+    if (!fs.existsSync(path.join(localStorage.GDDIR, 'quickldr.dll'))) {
+        printconsole('Quickldr Not Detected')
+        printconsole('Installing Quickldr...')
+        
+        printconsole('    Downloading .zip')
+        await new Promise(resolve => {
+            https.get('https://cdn.discordapp.com/attachments/837026406282035300/859008315413626920/quickldr-v1.1.zip', async res => {
+                const fp = fs.createWriteStream(path.join(process.env.TEMP, '/quickldr.zip'))
+                res.pipe(fp)
+                fp.on('finish', () => {
+                    fp.close()
+                    resolve()
+                })
+            }).on('error', err => {
+                printconsole('    Unable to Download .zip: ' + err, 'error')
+            })
+        })
+        printconsole('    Unpacking .zip')
+        await new Promise(resolve => {
+            decompress(path.join(process.env.TEMP, '/quickldr.zip'), path.join(process.env.TEMP, '/quickldr'))
+                .catch(err => {
+                    printconsole('    Error Unpacking .zip: ' + err, 'error')
+                })
+                .then(() => { resolve() })
+        })
+        printconsole('    Moving quickldr.dll')
+        fs.renameSync(path.join(process.env.TEMP, '/quickldr/quickldr.dll'), path.join(localStorage.GDDIR, '/quickldr.dll'))
+        printconsole('    Creating Backup libcurl.dll')
+        fs.renameSync(path.join(localStorage.GDDIR, '/libcurl.dll'), path.join(localStorage.GDDIR, '/libcurl.dll.bak'))
+        printconsole('    Moving libcurl.dll')
+        fs.renameSync(path.join(process.env.TEMP, '/quickldr/libcurl.dll'), path.join(localStorage.GDDIR, '/libcurl.dll'))
+        printconsole('    Creating Mods Directory')
+        try { fs.mkdirSync(path.join(localStorage.GDDIR, '/quickldr')) } catch { printconsole('    Directory Already Exists', 'warning') }
+        printconsole('    Creating settings.txt')
+        if (fs.existsSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'))) printconsole('    File Already Exists', 'warning')
+        else fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), '')
+        printconsole('    Install Finished')
+    } else printconsole('Quickldr Detected')
+
+    if (!fs.existsSync(path.join(localStorage.GDDIR, 'minhook.x32.dll'))) {
+        printconsole('Minhook Not Detected')
+        await new Promise(resolve => {
+            https.get('https://cdn.discordapp.com/attachments/837026406282035300/856484662028795924/minhook.x32.dll', async res => {
+            printconsole('    Downloading minhook.x32.dll')
+                const fp = fs.createWriteStream(path.join(localStorage.GDDIR, '/minhook.x32.dll'))
+                res.pipe(fp)
+                fp.on('finish', () => {
+                    fp.close()
+                    resolve()
+                })
+            })
+        })
+    } else {
+        printconsole('Minhook Detected')
+    }
+
+    if (fs.existsSync(path.join(localStorage.GDDIR, 'hackpro.dll'))) {
+        printconsole('Mega Hack v7 Detected')
+        localStorage.MHV7 = true
+    } else {
+        printconsole('Mega Hack v7 Not Detected')
+        localStorage.MHV7 = false
+    }
+
+    printconsole('Setup Finished')
+    
+    document.querySelector('#topsection button').style.display = 'flex'
+    document.querySelector('#topsection button').addEventListener('click', () => {
+        localStorage.NEWUSER = false
+        document.querySelector('#modal').style.opacity = '0'
+        location.reload()
+    })
+
+    printconsole('Please Close This Popup to Continue')
+
+    resolve()
+})
+
+module.exports = setup
