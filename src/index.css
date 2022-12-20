@@ -275,7 +275,6 @@ loading {
   all: revert;
 }
 
-/* Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
   width: 12px;
   border-radius: 6px;
@@ -320,4 +319,22 @@ loading {
 .card:active {
   transform: perspective(90px) rotateX(1deg) scale(1.05) translateY(-2px);
   box-shadow: 6px 6px 11px rgba(0, 0, 0, 0.4);
+}
+
+button.style, label.button {
+  border: 1px solid #495057;
+  border-radius: 8px;
+  background: #343a40;
+  color: #fff;
+  transition: background 200ms ease-in-out;
+  cursor: pointer;
+  padding: 7px 13px;
+  font-size: 13px;
+}
+button.style.disabled, label.button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button.style:hover:not(.disabled), label.button:hover:not(.disabled) {
+  background: #495057;
 }/*# sourceMappingURL=index.css.map */

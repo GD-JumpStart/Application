@@ -289,7 +289,6 @@ loading {
     }
 }
 
-/* Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
     width: 12px;
     border-radius: 6px;
@@ -335,5 +334,25 @@ loading {
     &:active{
         transform: perspective(90px) rotateX(1deg) scale(1.05) translateY(-2px);
         box-shadow: 6px 6px 11px #0006;
+    }
+}
+
+button.style, label.button {
+    border: 1px solid #495057;
+    border-radius: 8px;
+    background: #343a40;
+    color: #fff;
+    transition: background 200ms ease-in-out;
+    cursor: pointer;
+    padding: 7px 13px;
+    font-size: 13px;
+
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &:hover:not(.disabled) {
+        background: #495057;
     }
 }

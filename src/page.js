@@ -16,8 +16,8 @@ const page = async (pg) => {
 
                 let _mods = Object.keys(mods)
                 for (let i = 0; i < _mods.length; i++) {
-                    let mod = mods[_mods[i]]
-                    document.querySelector('body > main > *').innerHTML += `<button class="card">${_mods[i]}</button>`
+                    let mod = _mods[i]
+                    document.querySelector('body > main > *').innerHTML += `<button class="card">${mod}</button>`
                 }
                 
                 resolve()
