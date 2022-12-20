@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder build -w"
+    "build": "electron-builder build -w -p never"
   },
   "keywords": [],
   "author": {
