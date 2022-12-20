@@ -105,6 +105,21 @@ const setup = () => new Promise(async (resolve, reject) => {
         console.scrollTop = console.scrollHeight
     }
 
+    async function movefile(source, destination) { new Promise((resolve, reject) => {
+        try {
+            let src = fs.createReadStream(source)
+            let dst = fs.createWriteStream(destination)
+
+            src.pipe(dst)
+            src.on('end', () => {
+                fs.unlinkSync(source)
+                resolve()
+            }) 
+        } catch (e) {
+            reject(e)
+        }
+    }) }
+
     printconsole('Starting Setup')
 
     if (!fs.existsSync(path.join(localStorage.GDDIR, 'quickldr.dll'))) {
@@ -122,27 +137,29 @@ const setup = () => new Promise(async (resolve, reject) => {
                 })
             }).on('error', err => {
                 printconsole('    Unable to Download .zip: ' + err, 'error')
+                
             })
         })
+        if (!fs.existsSync(path.join(localStorage.GDDIR, '/libcurl.dll.bak'))) {
+            printconsole('    Creating Backup libcurl.dll')
+            fs.renameSync(path.join(localStorage.GDDIR, '/libcurl.dll'), path.join(localStorage.GDDIR, '/libcurl.dll.bak'))
+        }
         printconsole('    Unpacking .zip')
         await new Promise(resolve => {
-            decompress(path.join(process.env.TEMP, '/quickldr.zip'), path.join(process.env.TEMP, '/quickldr'))
+            decompress(path.join(process.env.TEMP, '/quickldr.zip'), localStorage.GDDIR)
                 .catch(err => {
                     printconsole('    Error Unpacking .zip: ' + err, 'error')
                 })
                 .then(() => { resolve() })
         })
-        printconsole('    Moving quickldr.dll')
-        fs.renameSync(path.join(process.env.TEMP, '/quickldr/quickldr.dll'), path.join(localStorage.GDDIR, '/quickldr.dll'))
-        printconsole('    Creating Backup libcurl.dll')
-        fs.renameSync(path.join(localStorage.GDDIR, '/libcurl.dll'), path.join(localStorage.GDDIR, '/libcurl.dll.bak'))
-        printconsole('    Moving libcurl.dll')
-        fs.renameSync(path.join(process.env.TEMP, '/quickldr/libcurl.dll'), path.join(localStorage.GDDIR, '/libcurl.dll'))
-        printconsole('    Creating Mods Directory')
-        try { fs.mkdirSync(path.join(localStorage.GDDIR, '/quickldr')) } catch { printconsole('    Directory Already Exists', 'warning') }
-        printconsole('    Creating settings.txt')
-        if (fs.existsSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'))) printconsole('    File Already Exists', 'warning')
-        else fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), '')
+        if (!fs.existsSync(path.join(localStorage.GDDIR, '/quickldr'))) {
+            printconsole('    Creating Mods Directory')
+            fs.mkdirSync(path.join(localStorage.GDDIR, '/quickldr'))
+        }
+        if (!fs.existsSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'))) {
+            printconsole('    Creating settings.txt')
+            fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), '')
+        }
         printconsole('    Install Finished')
     } else printconsole('Quickldr Detected')
 

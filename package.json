@@ -1,7 +1,7 @@
 {
   "name": "gd-modmanager",
   "productName": "gd-modmanager",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Mod Manager and Installer for Geometry Dash",
   "main": "src/index.js",
   "scripts": {
