@@ -15,9 +15,9 @@
       <h4>ModManager</h4>
     </span>
     <span id="controls">
-        <button id="min"><svg width="12" height="12" viewBox="0 0 12 12"><rect fill="currentColor" width="10" height="1" x="1" y="6"></rect></svg></button>
-        <button id="max"><svg width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect></svg></button>
-        <button onclick="window.close()" id="close"><svg width="12" height="12" viewBox="0 0 12 12"><polygon fill="currentColor" fill-rule="evenodd" points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"></polygon></svg></button>
+        <div id="min"><svg width="12" height="12" viewBox="0 0 12 12"><rect fill="currentColor" width="10" height="1" x="1" y="6"></rect></svg></div>
+        <div id="max"><svg width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect></svg></div>
+        <div onclick="window.close()" id="close"><svg width="12" height="12" viewBox="0 0 12 12"><polygon fill="currentColor" fill-rule="evenodd" points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"></polygon></svg></div>
     </span>
   </nav>
 
@@ -52,6 +52,8 @@
   const path = require('path')
   const setup = require('./setup')
   const page = require('./page')
+  const https = require('https')
+  const package = require('../package.json')
   const mods = {}
 
   document.getElementById('min').addEventListener('click', () => {
@@ -80,11 +82,71 @@
         document.querySelectorAll('aside *').forEach(e => { e.style.display = 'none' })
         localStorage.MHV7 = false
         localStorage.GDDIR = 'C:/Program Files (x86)/Steam/steamapps/common/Geometry Dash/'
+        localStorage.UPDATE = JSON.stringify({ version: null, time: 0 })
       } else {
         let _m = await fs.readdirSync(path.join(localStorage.GDDIR, 'quickldr'))
         _m.forEach(f => { if (f.endsWith('.dll')) mods[f.slice(0, -4)] = { enabled: false } })
         await fs.readFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -4)] != undefined) mods[m.slice(0, -4)].enabled = true })
         console.log(mods)
+        
+        https.get({
+          hostname: 'api.github.com',
+          path: '/repos/KontrollFreek/GMDModManager/releases/latest',
+          headers: {
+            'User-Agent': navigator.userAgent
+          }
+        }, res => {
+          let data = ''
+          res.on('data', (d) => data += d)
+          res.on('end', async () => {
+            data = JSON.parse(data)
+            if (package.version < data.tag_name.substr(1) && JSON.parse(localStorage.UPDATE).time < Date.now()) {
+              let update = await modal()
+              update.innerHTML = `<div style="
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+              "></div><div style="
+                padding: 10px;
+                height: 43px;
+                border-top: 1px #343a40 solid;
+                margin-top: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center
+              ">
+                <button id="continue" class="style blue">Update Now</button><button id="continue" class="style">Remind me Later</button>
+              </div>`
+
+              update.querySelector('div').innerHTML = `
+                <p>Your client is out of date.</p>
+                <p>Would you like to download the newest available version?</p>
+                <p style="font-size: 80%; margin-top: 10px" class="muted">v${package.version} \uF138 ${data.tag_name}</p>
+              `
+
+              localStorage.UPDATE = JSON.stringify({ version: data.tag_name, time: Date.now() + 6e5 })
+
+              update.querySelectorAll('button')[0].addEventListener('click', async () => {
+                localStorage.UPDATE = JSON.stringify({ version: data.tag_name, time: 0 })
+                require('shell').openExternal(data.html_url)
+                document.querySelector('#modal').style.opacity = '0'
+                document.querySelector('#modalcontainer').style.opacity = '0'
+                await wait(200)
+                document.querySelector('#modalcontainer').style.display = 'none'
+              })
+
+              update.querySelectorAll('button')[1].addEventListener('click', async() => {
+                document.querySelector('#modal').style.opacity = '0'
+                document.querySelector('#modalcontainer').style.opacity = '0'
+                await wait(200)
+                document.querySelector('#modalcontainer').style.display = 'none'
+              })
+            }
+
+          })
+        })
       }
       document.getElementById('load').style.opacity = '0'
       await wait(300)

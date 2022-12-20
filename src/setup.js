@@ -3,10 +3,34 @@ const fs = require('fs')
 const https = require('https')
 const path = require('path')
 const decompress = require('decompress')
+const crypto = require('crypto')
 
 const setup = () => new Promise(async (resolve, reject) => {
     await new Promise(async resolve => {
-        const dirwindow = await modal({ mouseLeave: false, close: false, title: 'Setup', cancel: false, confirm: false })
+        const valid = await new Promise(async resolve => {
+            try {
+                let checksumcocos = await new Promise(async (resolve, reject) => {
+                let hash = crypto.createHash('md5')
+                let read = fs.createReadStream(path.join(localStorage.GDDIR, 'libcocos2d.dll'))
+                    read.on('error', () => reject())
+                    read.on('data', (d) => hash.update(d))
+                    read.on('close', () => resolve(hash.digest('hex')))
+                })
+                let checksumfmod = await new Promise(async (resolve, reject) => {
+                    let hash = crypto.createHash('md5')
+                    let read = fs.createReadStream(path.join(localStorage.GDDIR, 'fmod.dll'))
+                    read.on('error', () => reject())
+                    read.on('data', (d) => hash.update(d))
+                    read.on('close', () => resolve(hash.digest('hex')))
+                })
+                if (checksumcocos == '29cfb52b30b2f487e30da873a4f20abf' && checksumfmod == '9a9fc4fea3bdd3f3fa09b0aa43dfee07') resolve(true)
+                else resolve(false)
+            } catch {
+                resolve(false)
+            }
+        })
+
+        const dirwindow = await modal({ mouseLeave: false, close: false, title: 'Setup' })
         let dir = localStorage.GDDIR
         dirwindow.innerHTML = `<div style="
             width: 100%;
@@ -16,7 +40,6 @@ const setup = () => new Promise(async (resolve, reject) => {
             flex-direction: column;
         "></div><div style="
             padding: 10px;
-            padding-bottom: 0px;
             height: 43px;
             border-top: 1px #343a40 solid;
             margin-top: 10px;
@@ -27,26 +50,52 @@ const setup = () => new Promise(async (resolve, reject) => {
             <button id="continue" class="style">Continue</button>
         </div>`
 
-        if (fs.existsSync(localStorage.GDDIR)) dirwindow.querySelector('div').innerHTML = `
+        if (fs.existsSync(localStorage.GDDIR) && valid) dirwindow.querySelector('div').innerHTML = `
             <p>Do you want to change your game directory?</p>
             <p>This can be used for installing mods with GDPSes.</p>
-            <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" webkitdirectory/>Find Directory</label>
+            <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" accept=".exe"/>Find Directory</label>
             <p style="font-size: 70%;" class="muted">Current directory: ${localStorage.GDDIR}</p>
         `
         else {
             dirwindow.querySelector('div').innerHTML = `
                 <p>The default game directory could not be found.</p>
                 <p>To continue, please locate to a working directory.</p>
-                <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" webkitdirectory/>Find Directory</label>
+                <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" accept=".exe"/>Find Directory</label>
                 <p style="font-size: 70%;" class="muted">Current directory: none</p>
             `
             document.getElementById('continue').classList.add('disabled')
         }
 
-        dirwindow.querySelector('input').addEventListener('change', (e) => {
+        dirwindow.querySelector('input').addEventListener('change', async (e) => {
             dirwindow.querySelectorAll('p')[2].innerText = 'Current directory: ' + path.join(e.target.files[0].path, '../').replace(/\\/g, '/')
-            document.getElementById('continue').classList.remove('disabled')
-            dir = path.join(e.target.files[0].path, '../')
+            const valid = await new Promise(async resolve => {
+                try {
+                    let checksumcocos = await new Promise(async (resolve, reject) => {
+                    let hash = crypto.createHash('md5')
+                    let read = fs.createReadStream(path.join(e.target.files[0].path, '../libcocos2d.dll'))
+                        read.on('error', () => reject())
+                        read.on('data', (d) => hash.update(d))
+                        read.on('close', () => resolve(hash.digest('hex')))
+                    })
+                    let checksumfmod = await new Promise(async (resolve, reject) => {
+                        let hash = crypto.createHash('md5')
+                        let read = fs.createReadStream(path.join(e.target.files[0].path, '../fmod.dll'))
+                        read.on('error', () => reject())
+                        read.on('data', (d) => hash.update(d))
+                        read.on('close', () => resolve(hash.digest('hex')))
+                    })
+                    if (checksumcocos == '29cfb52b30b2f487e30da873a4f20abf' && checksumfmod == '9a9fc4fea3bdd3f3fa09b0aa43dfee07') resolve(true)
+                    else resolve(false)
+                } catch {
+                    resolve(false)
+                }
+            })
+            if (valid) {
+                document.getElementById('continue').classList.remove('disabled')
+                dir = path.join(e.target.files[0].path, '../')
+            } else {
+                document.getElementById('continue').classList.add('disabled')
+            }
         })
 
         document.getElementById('continue').addEventListener('click', async () => {
@@ -62,7 +111,7 @@ const setup = () => new Promise(async (resolve, reject) => {
         })
     })
 
-    const setupwindow = await modal({ mouseLeave: false, close: false, title: 'Setup', cancel: false, confirm: false })
+    const setupwindow = await modal({ mouseLeave: false, close: false, title: 'Setup' })
     setupwindow.innerHTML = `<pre style="
         width: 100%;
         height: 100%;
@@ -76,6 +125,7 @@ const setup = () => new Promise(async (resolve, reject) => {
         align-items: flex-start;
         flex-direction: column;
         overflow-y: auto;
+        margin-bottom: 10px;
     "></pre>`
     let console = setupwindow.querySelector('pre')
     await wait(200)
@@ -104,21 +154,6 @@ const setup = () => new Promise(async (resolve, reject) => {
         ">${input}</code>`
         console.scrollTop = console.scrollHeight
     }
-
-    async function movefile(source, destination) { new Promise((resolve, reject) => {
-        try {
-            let src = fs.createReadStream(source)
-            let dst = fs.createWriteStream(destination)
-
-            src.pipe(dst)
-            src.on('end', () => {
-                fs.unlinkSync(source)
-                resolve()
-            }) 
-        } catch (e) {
-            reject(e)
-        }
-    }) }
 
     printconsole('Starting Setup')
 

@@ -3,8 +3,6 @@ const modal = (o = {}) => new Promise(async (resolve, reject) => {
 
     const options = {
         mouseLeave: true,
-        confirm: true,
-        exit: true,
         close: true
     }
 
@@ -45,10 +43,12 @@ const modal = (o = {}) => new Promise(async (resolve, reject) => {
     if (options.title != undefined) {
         topsection.querySelector('h1').innerText = options.title
         topsection.style.border = ''
+        topsection.style.marginBottom = ''
     }
     else {
         topsection.querySelector('h1').innerText = ''
         topsection.style.border = 'none'
+            topsection.style.marginBottom = '0px'
     }
 
     const close = topsection.querySelector('button')

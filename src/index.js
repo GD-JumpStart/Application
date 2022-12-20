@@ -9,11 +9,12 @@ const createWindow = () => {
     minHeight: 500,
     height: 720,
     frame: false,
+    icon: path.join(__dirname, '../build/icon.ico'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      preload: path.join(__dirname, 'preload.js'),
+      // preload: path.join(__dirname, 'preload.js')
     },
   });
 

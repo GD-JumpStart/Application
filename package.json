@@ -1,7 +1,7 @@
 {
   "name": "gd-modmanager",
-  "productName": "gd-modmanager",
-  "version": "0.1.2",
+  "productName": "GD ModManager",
+  "version": "0.1.3",
   "description": "Mod Manager and Installer for Geometry Dash",
   "main": "src/index.js",
   "scripts": {
@@ -16,17 +16,13 @@
   "build": {
     "appId": "dev.kontroll.modmanager",
     "win": {
-      "target": "portable"
+      "target": "nsis"
     },
     "mac": {
-      "target": "dmg"
+      "target": "pkg"
     },
     "linux": {
-      "target": "deb"
-    },
-    "portable": {
-      "unicode": false,
-      "artifactName": "ModManager.exe"
+      "target": "rpm"
     }
   },
   "license": "MIT",

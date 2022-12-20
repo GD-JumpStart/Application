@@ -1,25 +1,33 @@
 name: GD ModManager Compiler
-run-name: Compile GD ModManager
+run-name: Compile for Windows
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  Compile:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      - name: package
+      - name: Get Package Version
         uses: polyseam/get-version-from-package-json@1.0.0
         id: package
         with:
           path-to-package-json: './package.json'
-      - run: npm install
-      - run: npm run build
-      - uses: svenstaro/upload-release-action@v2
+      - name: Install Packages
+        run: npm install
+      - name: Compile Binary
+        run: npm run build
+      - name: Build Changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v3.5.0
+      - name: Create Release
+        uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./dist/ModManager.exe
-          asset_name: ModManager.exe
+          file: ./dist/GD ModManager Setup 0.1.3.exe
+          asset_name: GD ModManager Setup.exe
           tag: v${{ steps.package.outputs.version }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          prerelease: true
           overwrite: true

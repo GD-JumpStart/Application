@@ -45,7 +45,7 @@ nav span {
 nav #controls {
   padding: 0px;
 }
-nav #controls button {
+nav #controls div {
   z-index: 1;
   background: rgba(0, 0, 0, 0);
   color: rgba(255, 255, 255, 0.5333333333);
@@ -54,24 +54,27 @@ nav #controls button {
   border: none;
   -webkit-app-region: no-drag;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-nav #controls button:hover {
+nav #controls div:hover {
   background: rgba(255, 255, 255, 0.0666666667);
   color: rgba(255, 255, 255, 0.6);
 }
-nav #controls button:active {
+nav #controls div:active {
   background: rgba(255, 255, 255, 0.1333333333);
   color: rgba(255, 255, 255, 0.6666666667);
 }
-nav #controls button#close {
+nav #controls div#close {
   transition: 100ms;
 }
-nav #controls button#close:hover {
+nav #controls div#close:hover {
   background: #f33;
   transition: 100ms;
   color: #fff;
 }
-nav #controls button#close:active {
+nav #controls div#close:active {
   background: #f33;
   color: #fff;
 }
@@ -234,7 +237,7 @@ loading {
   z-index: 1;
 }
 #modalcontainer #modal {
-  padding: 10px;
+  padding: 0px 10px;
   background: #212529;
   border-radius: 10px;
   max-height: calc(100vh - 40px);
@@ -294,6 +297,12 @@ loading {
   background: #343a40;
 }
 
+*:focus-visible {
+  outline: 2px solid #0dcaf0;
+  border-radius: 4px;
+  transition: none;
+}
+
 .card {
   background: #6c757d;
   width: 155px;
@@ -330,6 +339,10 @@ button.style, label.button {
   cursor: pointer;
   padding: 7px 13px;
   font-size: 13px;
+  min-width: 60px;
+}
+button.style.blue, label.button.blue {
+  background: #0d6efd;
 }
 button.style.disabled, label.button.disabled {
   opacity: 0.5;
@@ -337,4 +350,7 @@ button.style.disabled, label.button.disabled {
 }
 button.style:hover:not(.disabled), label.button:hover:not(.disabled) {
   background: #495057;
+}
+button.style:hover:not(.disabled).blue, label.button:hover:not(.disabled).blue {
+  background: #024dbc;
 }/*# sourceMappingURL=index.css.map */

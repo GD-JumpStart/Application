@@ -50,7 +50,7 @@ nav {
     #controls {
         padding: 0px;
 
-        button {
+        div {
             z-index: 1;
             background: #0000;
             color: #fff8;
@@ -59,6 +59,9 @@ nav {
             border: none;
             -webkit-app-region: no-drag;
             cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
             &:hover {
                 background: #fff1;
@@ -243,7 +246,7 @@ loading {
     z-index: 1;
 
     #modal {
-        padding: 10px;
+        padding: 0px 10px;
         background: #212529;
         border-radius: 10px;
         max-height: calc(100vh - 40px);
@@ -308,6 +311,12 @@ loading {
     }
 }
 
+*:focus-visible {
+    outline: 2px solid #0dcaf0;
+    border-radius: 4px;
+    transition: none;
+}
+
 .card {
     background: #6c757d;
     width: 155px;
@@ -346,6 +355,11 @@ button.style, label.button {
     cursor: pointer;
     padding: 7px 13px;
     font-size: 13px;
+    min-width: 60px;
+
+    &.blue {
+        background: #0d6efd;
+    }
 
     &.disabled {
         opacity: 0.5;
@@ -354,5 +368,9 @@ button.style, label.button {
 
     &:hover:not(.disabled) {
         background: #495057;
+
+        &.blue {
+            background: #024dbc;
+        }
     }
 }
