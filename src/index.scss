@@ -346,6 +346,56 @@ loading {
     }
 }
 
+#library {
+    width: 100%;
+
+    div:first-child {
+        display: flex;
+        align-items: center;
+        padding: 5px;
+        color: #6c757d;
+    }
+
+    div:not(div:first-child) {
+        display: flex;
+        align-items: center;
+        padding: 5px;
+        background: #212529;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    span {
+        padding: 5px;
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &:nth-child(1) {
+            width: 60px;
+        }
+
+        &:nth-child(2) {
+            flex-grow: 1;
+            flex-shrink: 1;
+        }
+
+        &:nth-child(3) {
+            width: 100px;
+        }
+
+        &:nth-child(4) {
+            width: 150px;
+        }
+
+        &:nth-child(5) {
+            width: 27px;
+            margin-right: 10px
+        }
+    }
+}
+
 button.style, label.button {
     border: 1px solid #495057;
     border-radius: 8px;

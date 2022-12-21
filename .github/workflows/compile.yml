@@ -1,4 +1,4 @@
-name: GD ModManager Compiler
+name: JumpStart Compiler
 run-name: Compile for Windows
 on: [push]
 jobs:
@@ -22,8 +22,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./dist/GD ModManager Setup ${{ steps.package.outputs.version }}.exe
-          asset_name: GD_ModManager_Setup.exe
+          file: ./dist/JumpStart Setup ${{ steps.package.outputs.version }}.exe
+          asset_name: JumpStart_Setup.exe
           tag: v${{ steps.package.outputs.version }}
           prerelease: true
           overwrite: true

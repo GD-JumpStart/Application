@@ -330,6 +330,48 @@ loading {
   box-shadow: 6px 6px 11px rgba(0, 0, 0, 0.4);
 }
 
+#library {
+  width: 100%;
+}
+#library div:first-child {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  color: #6c757d;
+}
+#library div:not(div:first-child) {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  background: #212529;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+#library span {
+  padding: 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#library span:nth-child(1) {
+  width: 60px;
+}
+#library span:nth-child(2) {
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+#library span:nth-child(3) {
+  width: 100px;
+}
+#library span:nth-child(4) {
+  width: 150px;
+}
+#library span:nth-child(5) {
+  width: 27px;
+  margin-right: 10px;
+}
+
 button.style, label.button {
   border: 1px solid #495057;
   border-radius: 8px;

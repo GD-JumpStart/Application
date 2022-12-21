@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>ModManager</title>
+  <title>JumpStart</title>
   <link rel="stylesheet" href="./index.css" />
 </head>
 
@@ -11,8 +11,8 @@
   <div id="modalcontainer"><div id="modal"><span id="topsection"><h1></h1><button>&#xF62A;</button></span><main></main></div></div>
   <nav>
     <span>
-      <img src="../assets/icon.png" width="25" height="25" style="margin-right: 10px;" alt="GD ModManager Logo"/>
-      <h4>ModManager</h4>
+      <img src="../assets/icon.png" width="25" height="25" style="margin-right: 10px;" alt="JumpStart Logo"/>
+      <h4>JumpStart</h4>
     </span>
     <span id="controls">
         <div id="min"><svg width="12" height="12" viewBox="0 0 12 12"><rect fill="currentColor" width="10" height="1" x="1" y="6"></rect></svg></div>
@@ -36,7 +36,7 @@
 
   <main>
     <center style="height: 100%; flex-direction: column;">
-      <img id="icon" src="../assets/icon.svg" style="transform: translateY(60px); opacity: 0; transition: 400ms ease-out" height="100" width="100" alt="GD ModManager Logo">
+      <img id="icon" src="../assets/icon.svg" style="transform: translateY(60px); opacity: 0; transition: 400ms ease-out" height="100" width="100" alt="JumpStartLogo">
       <loading id="load" style="position: absolute; bottom: calc(50% - 110px); opacity: 0"></loading>
       <h2 style="margin: 10px 0px; transform: translateY(10px); opacity: 0; transition: 200ms ease-out">Welcome Back!</h2>
       <p style="transform: translateY(10px); opacity: 0; transition: 200ms ease-out">To continue, navigate the sidebar to the left.</p>
@@ -76,7 +76,7 @@
       document.getElementById('load').style.opacity = '1'
       await wait(300)
       if (localStorage.NEWUSER == undefined || localStorage.NEWUSER != 'false') {
-        document.querySelector('center h2').innerText = 'Welome to GD ModManager'
+        document.querySelector('center h2').innerText = 'Welome to JumpStart'
         document.querySelectorAll('center p')[0].innerHTML = 'To get started, <a href="javascript:setup()">run a quick setup</a>.'
         document.querySelectorAll('center p')[1].innerText = 'The setup will make sure your game has a modloader, and will integrate with your current one if available'
         document.querySelectorAll('aside *').forEach(e => { e.style.display = 'none' })
@@ -99,6 +99,7 @@
           res.on('data', (d) => data += d)
           res.on('end', async () => {
             data = JSON.parse(data)[0]
+            console.log(data)
             if (package.version < data.tag_name.substr(1) && localStorage.UPDATE < Date.now()) {
               let update = await modal()
               update.innerHTML = `<div style="
@@ -122,7 +123,7 @@
               update.querySelector('div').innerHTML = `
                 <p>Your client is out of date.</p>
                 <p>Would you like to download the newest available version?</p>
-                <p style="font-size: 80%; margin-top: 10px" class="muted">v${package.version} \uF138 ${data.tag_name}</p>
+                <p style="font-size: 80%; margin-top: 10px" class="muted">v${package.version} → ${data.tag_name}</p>
               `
 
               localStorage.UPDATE = 6e5

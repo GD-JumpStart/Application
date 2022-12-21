@@ -1,7 +1,7 @@
 {
-  "name": "gd-modmanager",
-  "productName": "GD ModManager",
-  "version": "0.1.4",
+  "name": "jumpstart",
+  "productName": "JumpStart",
+  "version": "0.2.0",
   "description": "Mod Manager and Installer for Geometry Dash",
   "main": "src/index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "email": "williambush357@gmail.com"
   },
   "build": {
-    "appId": "dev.kontroll.modmanager",
+    "appId": "dev.kontroll.jumpstart",
     "win": {
       "target": "nsis"
     },
