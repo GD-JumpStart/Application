@@ -91,7 +91,7 @@
         
         https.get({
           hostname: 'api.github.com',
-          path: '/repos/KontrollFreek/GMDModManager/releases/latest',
+          path: '/repos/KontrollFreek/GMDModManager/releases',
           headers: {
             'User-Agent': navigator.userAgent
           }
@@ -99,7 +99,7 @@
           let data = ''
           res.on('data', (d) => data += d)
           res.on('end', async () => {
-            data = JSON.parse(data)
+            data = JSON.parse(data)[0]
             if (package.version < data.tag_name.substr(1) && JSON.parse(localStorage.UPDATE).time < Date.now()) {
               let update = await modal()
               update.innerHTML = `<div style="
