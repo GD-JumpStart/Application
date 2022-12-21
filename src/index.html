@@ -82,12 +82,11 @@
         document.querySelectorAll('aside *').forEach(e => { e.style.display = 'none' })
         localStorage.MHV7 = false
         localStorage.GDDIR = 'C:/Program Files (x86)/Steam/steamapps/common/Geometry Dash/'
-        localStorage.UPDATE = JSON.stringify({ version: null, time: 0 })
+        localStorage.UPDATE = 0
       } else {
         let _m = await fs.readdirSync(path.join(localStorage.GDDIR, 'quickldr'))
         _m.forEach(f => { if (f.endsWith('.dll')) mods[f.slice(0, -4)] = { enabled: false } })
         await fs.readFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -4)] != undefined) mods[m.slice(0, -4)].enabled = true })
-        console.log(mods)
         
         https.get({
           hostname: 'api.github.com',
@@ -100,7 +99,7 @@
           res.on('data', (d) => data += d)
           res.on('end', async () => {
             data = JSON.parse(data)[0]
-            if (package.version < data.tag_name.substr(1) && JSON.parse(localStorage.UPDATE).time < Date.now()) {
+            if (package.version < data.tag_name.substr(1) && localStorage.UPDATE < Date.now()) {
               let update = await modal()
               update.innerHTML = `<div style="
                 width: 100%;
@@ -126,10 +125,10 @@
                 <p style="font-size: 80%; margin-top: 10px" class="muted">v${package.version} \uF138 ${data.tag_name}</p>
               `
 
-              localStorage.UPDATE = JSON.stringify({ version: data.tag_name, time: Date.now() + 6e5 })
+              localStorage.UPDATE = 6e5
 
               update.querySelectorAll('button')[0].addEventListener('click', async () => {
-                localStorage.UPDATE = JSON.stringify({ version: data.tag_name, time: 0 })
+                localStorage.UPDATE = 0
                 require('shell').openExternal(data.html_url)
                 document.querySelector('#modal').style.opacity = '0'
                 document.querySelector('#modalcontainer').style.opacity = '0'
