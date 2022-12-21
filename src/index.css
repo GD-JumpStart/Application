@@ -362,10 +362,10 @@ loading {
   flex-shrink: 1;
 }
 #library span:nth-child(3) {
-  width: 100px;
+  width: 60px;
 }
 #library span:nth-child(4) {
-  width: 150px;
+  width: 110px;
 }
 #library span:nth-child(5) {
   width: 27px;

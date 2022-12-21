@@ -46,13 +46,13 @@
 </body>
 
 <script>
-  const { ipcRenderer } = require('electron')
-  const modal = require('./modal')
+  const { ipcRenderer, shell } = require('electron')
   const fs = require('fs')
   const path = require('path')
+  const https = require('https')
+  const modal = require('./modal')
   const setup = require('./setup')
   const page = require('./page')
-  const https = require('https')
   const package = require('../package.json')
   const mods = {}
 
@@ -90,7 +90,7 @@
         
         https.get({
           hostname: 'api.github.com',
-          path: '/repos/KontrollFreek/GMDModManager/releases',
+          path: '/repos/GD-JumpStart/Application/releases',
           headers: {
             'User-Agent': navigator.userAgent
           }
@@ -130,7 +130,7 @@
 
               update.querySelectorAll('button')[0].addEventListener('click', async () => {
                 localStorage.UPDATE = 0
-                require('shell').openExternal(data.html_url)
+                shell.openExternal(data.html_url)
                 document.querySelector('#modal').style.opacity = '0'
                 document.querySelector('#modalcontainer').style.opacity = '0'
                 await wait(200)

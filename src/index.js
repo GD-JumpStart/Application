@@ -4,9 +4,9 @@ const path = require('path');
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    minWidth: 500,
+    minWidth: 640,
     width: 1280,
-    minHeight: 500,
+    minHeight: 480,
     height: 720,
     frame: false,
     icon: path.join(__dirname, '../build/icon.ico'),

@@ -46,11 +46,12 @@ const page = async (pg) => {
                 let _mods = Object.keys(mods)
                 for (let i = 0; i < _mods.length; i++) {
                     let mod = _mods[i]
-                    let time = getRelativeTime(Date.now() - Math.floor(Math.random() * 31536e6))
+                    let time = getRelativeTime(Date.now() - Math.floor(Math.random() * (units.year * 4)))
+                    let version = `${Math.floor(Math.random() * 5)}.${Math.floor(Math.random() * 12)}.${Math.floor(Math.random() * 30)}`
                     document.getElementById('library').innerHTML += `<div>
                         <span><img src="../assets/defaultmod.png" alt="${mod}'s icon" style="border-radius: 11px" height="60" width="60"></span>
                         <span title="${mod}">${mod}</span>
-                        <span title="v1.0.0">v1.0.0</span>
+                        <span title="v${version}">v${version}</span>
                         <span title="${time}">${time}</span>
                         <span >\uF5D4</span>
                     </div>`
