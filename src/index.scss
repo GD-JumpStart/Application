@@ -292,7 +292,7 @@ loading {
     }
 }
 
-* {
+*:not(code, pre) {
     font-family: 'bootstrap-icons', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
