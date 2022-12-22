@@ -8,6 +8,7 @@
 </head>
 
 <body>
+  <context></context>
   <div id="modalcontainer"><div id="modal"><span id="topsection"><h1></h1><button>&#xF62A;</button></span><main></main></div></div>
   <nav>
     <span>
@@ -85,7 +86,12 @@
         localStorage.UPDATE = 0
       } else {
         let _m = await fs.readdirSync(path.join(localStorage.GDDIR, 'quickldr'))
-        _m.forEach(f => { if (f.endsWith('.dll')) mods[f.slice(0, -4)] = { enabled: false } })
+        await _m.forEach(async f => {
+          if (f.endsWith('.dll')) {
+            let t = await fs.statSync(path.join(localStorage.GDDIR, '/quickldr/' + f)).mtime.getTime()
+            mods[f.slice(0, -4)] = { enabled: false, time: t }
+          }
+        })
         await fs.readFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -4)] != undefined) mods[m.slice(0, -4)].enabled = true })
         
         https.get({
@@ -99,7 +105,6 @@
           res.on('data', (d) => data += d)
           res.on('end', async () => {
             data = JSON.parse(data)[0]
-            console.log(data)
             if (package.version < data.tag_name.substr(1) && localStorage.UPDATE < Date.now()) {
               let update = await modal()
               update.innerHTML = `<div style="

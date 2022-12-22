@@ -1,2 +1,2 @@
 # JumpStart
-Formerly GD ModManager--A Mod Manager and Installer for Geometry Dash
+The user interface and main project for JumpStart

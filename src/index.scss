@@ -292,6 +292,10 @@ loading {
     }
 }
 
+* {
+    font-family: 'bootstrap-icons', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
 *::-webkit-scrollbar {
     width: 12px;
     border-radius: 6px;
@@ -362,7 +366,18 @@ loading {
         padding: 5px;
         background: #212529;
         border-radius: 10px;
-        margin-bottom: 10px;
+        margin: 10px 0px;
+        box-shadow: 5px 5px 7px #0006;
+        cursor: pointer;
+        transition: 300ms cubic-bezier(.15, .8, .65, 1);
+        transition-property: transform box-shadow;
+        z-index: 0;
+
+        &:hover {
+            transform: translateY(-6px);
+            box-shadow: 9px 9px 9px #0006;
+            z-index: 2;
+        }
     }
 
     span {
@@ -382,16 +397,51 @@ loading {
         }
 
         &:nth-child(3) {
-            width: 60px;
+            width: 70px;
+            text-align: center;
         }
 
         &:nth-child(4) {
-            width: 110px;
+            width: 120px;
+            text-align: right;
+        }
+    }
+}
+
+context {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    z-index: 3;
+    background: #121313;
+    border-radius: 8px;
+    display: none;
+    box-shadow: 7px 7px 12px #0006;
+
+    button {
+        border: none;
+        height: 30px;
+        width: 90px;
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
+
+        &:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
         }
 
-        &:nth-child(5) {
-            width: 27px;
-            margin-right: 10px
+        &:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        &:hover {
+            background: #2125297f;
+
+            &#del {
+                background: #dc3545;
+            }
         }
     }
 }
@@ -411,6 +461,10 @@ button.style, label.button {
         background: #0d6efd;
     }
 
+    &.red {
+        background: #dc3545;
+    }
+
     &.disabled {
         opacity: 0.5;
         cursor: not-allowed;
@@ -421,6 +475,10 @@ button.style, label.button {
 
         &.blue {
             background: #024dbc;
+        }
+
+        &.red {
+            background: #bd2130;
         }
     }
 }
