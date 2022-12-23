@@ -6,30 +6,17 @@ const decompress = require('decompress')
 const crypto = require('crypto')
 
 const setup = () => new Promise(async (resolve, reject) => {
+    localStorage.NEWUSER = false
+        document.querySelector('#modal').style.opacity = '0'
+        location.reload()
     await new Promise(async resolve => {
         const valid = await new Promise(async resolve => {
             try {
-                let checksumcocos = await new Promise(async (resolve, reject) => {
-                let hash = crypto.createHash('md5')
-                let read = fs.createReadStream(path.join(localStorage.GDDIR, 'libcocos2d.dll'))
-                    read.on('error', () => reject())
-                    read.on('data', (d) => hash.update(d))
-                    read.on('close', () => resolve(hash.digest('hex')))
-                })
-                let checksumfmod = await new Promise(async (resolve, reject) => {
-                    let hash = crypto.createHash('md5')
-                    let read = fs.createReadStream(path.join(localStorage.GDDIR, 'fmod.dll'))
-                    read.on('error', () => reject())
-                    read.on('data', (d) => hash.update(d))
-                    read.on('close', () => resolve(hash.digest('hex')))
-                })
-                if (checksumcocos == '29cfb52b30b2f487e30da873a4f20abf' && checksumfmod == '9a9fc4fea3bdd3f3fa09b0aa43dfee07') resolve(true)
-                else resolve(false)
+                resolve(true)
             } catch {
                 resolve(false)
             }
         })
-
         const dirwindow = await modal({ mouseLeave: false, close: false, title: 'Setup' })
         let dir = localStorage.GDDIR
         dirwindow.innerHTML = `<div style="
@@ -70,22 +57,7 @@ const setup = () => new Promise(async (resolve, reject) => {
             dirwindow.querySelectorAll('p')[2].innerText = 'Current directory: ' + path.join(e.target.files[0].path, '../').replace(/\\/g, '/')
             const valid = await new Promise(async resolve => {
                 try {
-                    let checksumcocos = await new Promise(async (resolve, reject) => {
-                    let hash = crypto.createHash('md5')
-                    let read = fs.createReadStream(path.join(e.target.files[0].path, '../libcocos2d.dll'))
-                        read.on('error', () => reject())
-                        read.on('data', (d) => hash.update(d))
-                        read.on('close', () => resolve(hash.digest('hex')))
-                    })
-                    let checksumfmod = await new Promise(async (resolve, reject) => {
-                        let hash = crypto.createHash('md5')
-                        let read = fs.createReadStream(path.join(e.target.files[0].path, '../fmod.dll'))
-                        read.on('error', () => reject())
-                        read.on('data', (d) => hash.update(d))
-                        read.on('close', () => resolve(hash.digest('hex')))
-                    })
-                    if (checksumcocos == '29cfb52b30b2f487e30da873a4f20abf' && checksumfmod == '9a9fc4fea3bdd3f3fa09b0aa43dfee07') resolve(true)
-                    else resolve(false)
+                    resolve(true)
                 } catch {
                     resolve(false)
                 }

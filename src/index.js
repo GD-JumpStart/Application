@@ -9,7 +9,7 @@ const createWindow = () => {
     minHeight: 480,
     height: 720,
     frame: false,
-    icon: path.join(__dirname, '../build/icon.ico'),
+    icon: path.join(__dirname, '../build/icon.icns'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -51,3 +51,6 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+// In this file you can include the rest of your app's specific main process
+// code. You can also put them in separate files and import them here.

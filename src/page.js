@@ -53,7 +53,6 @@ const page = async (pg) => {
                         <span title="${new Date(mods[mod].time).toLocaleString()} (${getRelativeTime(mods[mod].time)})">${getRelativeTime(mods[mod].time)}</span>
                     </div>`
                 }
-
                 for (let i = 0; i < _mods.length; i++) {
                     document.querySelector(`#library div[data-modid="${i}"]`).addEventListener('contextmenu', (e) => {
                         let context = document.getElementsByTagName('context')[0]
@@ -91,7 +90,7 @@ const page = async (pg) => {
                             
                             let list = ''
                             _mods.forEach(m => { if (mods[m].enabled) list += m + '.dll\r\n' })
-                            fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), list)
+                            fs.writeFileSync(path.join(localStorage.GDDIR, '/mods.txt'), list)
                         })
 
                         del.addEventListener('click', async () => {
@@ -151,6 +150,39 @@ const page = async (pg) => {
                 })
                 
                 resolve()
+                break
+            case 'installations':
+                document.querySelector('body > main').innerHTML = `
+                <div style="display: flex; padding: 14px; flex-wrap: wrap; align-content: flex-start">
+                    <div id="library">
+                        <div>
+                            <span></span>
+                            <span>Pack Name</span>
+                            <span>Day Added</span>
+                        </div>
+                    </div>
+                </div>
+                `
+                document.getElementById('library').innerHTML += `
+                <div data-modid="1" id="the">
+                    <span><img src="../assets/icon.svg" alt="lmao's icon" style="border-radius: 11px; height="60" width="60"></span>
+                    <span title="First">First</span>
+                    <span title="v0.2">v0.2</span>
+                </div>
+                <div data-modid="2">
+                    <span><img src="../assets/icon.svg" alt="lmao's icon" style="border-radius: 11px; height="60" width="60"></span>
+                    <span title="Second">Second</span>
+                    <span title="v0.2">v0.2</span>
+                </div>
+                <div data-modid="3">
+                    <span><img src="../assets/icon.svg" alt="lmao's icon" style="border-radius: 11px; height="60" width="60"></span>
+                    <span title="Third">Third</span>
+                    <span title="v0.2">v0.2</span>
+                </div>
+                `
+                the.addEventListener('click', e => {
+                    window.close();
+                })
                 break
             default:
 
