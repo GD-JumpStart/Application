@@ -163,12 +163,14 @@ const page = async (pg) => {
                     </div>
                 </div>
                 `
-                document.getElementById('library').innerHTML += `
+                if (fs.existsSync(path.join(localStorage.GDDIR, 'CrystalClient.geode'))) document.getElementById('library').innerHTML += `
                 <div data-modid="1" id="the">
-                    <span><img src="../assets/icon.svg" alt="lmao's icon" style="border-radius: 11px; height="60" width="60"></span>
-                    <span title="First">First</span>
-                    <span title="v0.2">v0.2</span>
+                <span><img src="../assets/icon.svg" alt="lmao's icon" style="border-radius: 11px; height="60" width="60"></span>
+                <span title="Crystal">Crystal</span>
+                <span title="v0.2">v0.2</span>
                 </div>
+                `
+                document.getElementById('library').innerHTML += `
                 <div data-modid="2">
                     <span><img src="../assets/icon.svg" alt="lmao's icon" style="border-radius: 11px; height="60" width="60"></span>
                     <span title="Second">Second</span>

@@ -74,6 +74,8 @@
       //document.getElementById('icon').style.transform = 'translateY(10px)'
   })
 
+  localStorage.NEWUSER = false
+
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
   window.addEventListener('load', async () => {
@@ -96,14 +98,14 @@
         localStorage.UPDATE = 0
       } else {
         document.getElementById('icon').style.transform = 'translateY(0px)'
-        let _m = await fs.readdirSync(path.join(localStorage.GDDIR, 'quickldr'))
+        let _m = await fs.readdirSync(localStorage.GDDIR)
         await _m.forEach(async f => {
           if (f.endsWith('.geode')) {
-            let t = await fs.statSync(path.join(localStorage.GDDIR, '/quickldr/' + f)).mtime.getTime()
-            mods[f.slice(0, -4)] = { enabled: false, time: t }
+            let t = await fs.statSync(path.join(localStorage.GDDIR, f)).mtime.getTime()
+            mods[f.slice(0, -6)] = { enabled: false, time: t }
           }
         })
-        await fs.readFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -4)] != undefined) mods[m.slice(0, -4)].enabled = true })
+        await fs.readFileSync(path.join(localStorage.GDDIR, 'settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -6)] != undefined) mods[m.slice(0, -6)].enabled = true })
         
         https.get({
           hostname: 'api.github.com',

@@ -6,7 +6,6 @@ const decompress = require('decompress')
 const crypto = require('crypto')
 
 const setup = () => new Promise(async (resolve, reject) => {
-    localStorage.NEWUSER = false
         document.querySelector('#modal').style.opacity = '0'
         location.reload()
     await new Promise(async resolve => {
