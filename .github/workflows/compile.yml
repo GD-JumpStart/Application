@@ -1,11 +1,20 @@
 name: JumpStart Compiler
-run-name: Compile for Windows
+run-name: Compile for All Platforms
 on: [push]
 jobs:
   Compile:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+        branch: [win, mac]
+        tag: [w, m]
+        distfile: [JumpStart Setup , JumpStart-]
+        filetype: [exe, pkg]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch }}
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
@@ -17,13 +26,13 @@ jobs:
       - name: Install Packages
         run: npm install
       - name: Compile Binary
-        run: npm run build
+        run: npx electron-builder build -${{ matrix.tag }} -p never
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./dist/JumpStart Setup ${{ steps.package.outputs.version }}.exe
-          asset_name: JumpStart_Setup.exe
-          tag: v${{ steps.package.outputs.version }}
+          file: ./dist/${{ matrix.distfile }}${{ steps.package.outputs.version }}.${{ matrix.filetype }}
+          asset_name: JumpStart_Setup-${{ matrix.branch }}.${{ matrix.filetype }}
+          tag: v${{ steps.package.outputs.version }} ${{ matrix.branch }}
           prerelease: true
           overwrite: true
