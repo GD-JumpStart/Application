@@ -64,6 +64,7 @@
   const page = require('./page')
   const package = require('../package.json')
   const mods = {}
+  const packs = {}
 
   document.getElementById('min').addEventListener('click', () => {
       ipcRenderer.send('min')
@@ -95,6 +96,7 @@
         document.querySelectorAll('aside *').forEach(e => { e.style.display = 'none' })
         localStorage.MHV7 = false
         localStorage.GDDIR = '/Users/trooper/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/geode/mods/'
+        localStorage.RESOURCE = '/Users/trooper/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Resources/'
         localStorage.UPDATE = 0
       } else {
         document.getElementById('icon').style.transform = 'translateY(0px)'
@@ -106,7 +108,7 @@
           }
         })
         await fs.readFileSync(path.join(localStorage.GDDIR, 'settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -6)] != undefined) mods[m.slice(0, -6)].enabled = true })
-        
+
         https.get({
           hostname: 'api.github.com',
           path: '/repos/GD-JumpStart/Application/releases',
