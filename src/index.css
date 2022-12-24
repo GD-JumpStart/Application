@@ -372,6 +372,38 @@ loading {
   width: 27px;
   margin-right: 10px;
 }
+context {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  z-index: 3;
+  background: #121313;
+  border-radius: 8px;
+  display: none;
+  box-shadow: 7px 7px 12px rgba(0, 0, 0, 0.4);
+}
+context button {
+  border: none;
+  height: 30px;
+  width: 90px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+context button:first-child {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+context button:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+context button:hover {
+  background: rgba(33, 37, 41, 0.4980392157);
+}
+context button:hover#del {
+  background: #dc3545;
+}
 
 button.style, label.button {
   border: 1px solid #495057;
@@ -387,6 +419,9 @@ button.style, label.button {
 button.style.blue, label.button.blue {
   background: #0d6efd;
 }
+button.style.red, label.button.red {
+  background: #dc3545;
+}
 button.style.disabled, label.button.disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -396,4 +431,7 @@ button.style:hover:not(.disabled), label.button:hover:not(.disabled) {
 }
 button.style:hover:not(.disabled).blue, label.button:hover:not(.disabled).blue {
   background: #024dbc;
+}
+button.style:hover:not(.disabled).red, label.button:hover:not(.disabled).red {
+  background: #bd2130;
 }/*# sourceMappingURL=index.css.map */

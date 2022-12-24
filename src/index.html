@@ -102,12 +102,12 @@
         document.getElementById('icon').style.transform = 'translateY(0px)'
         let _m = await fs.readdirSync(localStorage.GDDIR)
         await _m.forEach(async f => {
+          let t = await fs.statSync(path.join(localStorage.GDDIR, f)).mtime.getTime()
           if (f.endsWith('.geode')) {
-            let t = await fs.statSync(path.join(localStorage.GDDIR, f)).mtime.getTime()
             mods[f.slice(0, -6)] = { enabled: false, time: t }
           }
         })
-        await fs.readFileSync(path.join(localStorage.GDDIR, 'settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -6)] != undefined) mods[m.slice(0, -6)].enabled = true })
+        //await fs.readFileSync(path.join(localStorage.GDDIR, 'settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -6)] != undefined) mods[m.slice(0, -6)].enabled = true })
 
         https.get({
           hostname: 'api.github.com',
@@ -120,6 +120,11 @@
           res.on('data', (d) => data += d)
           res.on('end', async () => {
             data = JSON.parse(data)[0]
+            let i = 0
+            while (data.tag_name.endsWith('-Mac')) {
+                i++
+                data = JSON.parse(data)[i]
+            }
             if (package.version < data.tag_name.substr(1) && localStorage.UPDATE < Date.now()) {
               let update = await modal()
               update.innerHTML = `<div style="
