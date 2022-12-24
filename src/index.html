@@ -26,7 +26,7 @@
     <span>
       <a href="javascript:page('store')" data-page="store"><span>&#xF242;</span>Store</a>
       <a href="javascript:page('library')" data-page="library"><span>&#xF2CC;</span>Mod Library</a>
-      <a href="javascript:page('downloads')" data-page="downloads"><span>&#xF30A;</span>Downloads</a>
+      <a href="javascript:downloads('downloads')" data-page="downloads"><span>&#xF30A;</span>Downloads</a>
       <a href="javascript:page('texturePacks')" data-page="texturePacks"><span>&#xF3D8;</span>Texture Packs</a>
       <a href="javascript:page('saveData')" data-page="saveData"><span>&#xF3C2;</span>Save Data</a>
       <a href="javascript:page('installations')" data-page="installations"><span>&#xF10A;</span>Installations</a>
@@ -100,11 +100,14 @@
         localStorage.UPDATE = 0
       } else {
         document.getElementById('icon').style.transform = 'translateY(0px)'
-        let _m = await fs.readdirSync(localStorage.GDDIR)
+
+        let _m = await fs.readdirSync(localStorage.GDDIR) 
         await _m.forEach(async f => {
           let t = await fs.statSync(path.join(localStorage.GDDIR, f)).mtime.getTime()
           if (f.endsWith('.geode')) {
             mods[f.slice(0, -6)] = { enabled: false, time: t }
+          } else if (f.endsWith('.txt')) {
+            packs[f.slice(0, -4)] = { enabled: false, time: t }
           }
         })
         //await fs.readFileSync(path.join(localStorage.GDDIR, 'settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -6)] != undefined) mods[m.slice(0, -6)].enabled = true })
@@ -171,6 +174,15 @@
             }
 
           })
+        })
+        let _mm = await fs.readdirSync(localStorage.RESOURCE) 
+        await _mm.forEach(async f => {
+          let tt = fs.statSync(path.join(localStorage.RESOURCE, f)).mtime.getTime()
+          if (f.endsWith('.geode')) {
+            mods[f.slice(0, -6)] = { enabled: false, time: tt }
+          } else if (f.endsWith('.png')) {
+            packs[f.slice(0, -4)] = { enabled: false, time: tt }
+          }
         })
       }
       document.getElementById('load').style.opacity = '0'

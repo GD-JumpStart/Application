@@ -60,11 +60,14 @@ const page = async (pg) => {
                 // let update = context.appendChild(document.createElement('button'))
                 let disable = context.appendChild(document.createElement('button'))
                 let del = context.appendChild(document.createElement('button'))
+                let rename = context.appendChild(document.createElement('button'))
                 // update.innerText = 'Update'
                 if (mods[_mods[i]].enabled) disable.innerText = 'Disable'
                 else disable.innerText = 'Enable'
                 del.innerText = 'Delete'
                 del.id = 'del'
+                rename.innerText = 'Rename'
+                rename.id = 'name'
                 context.style.top = e.clientY + 10 + 'px'
                 context.style.left = e.clientX + 10 + 'px'
                 let bounding = context.getBoundingClientRect()
@@ -120,10 +123,10 @@ const page = async (pg) => {
                     `
 
                     confirm.querySelectorAll('button')[0].addEventListener('click', async () => {
-                        await fs.unlinkSync(path.join(localStorage.GDDIR, `/quickldr/${_mods[i]}.dll`))
-                        let list = ''
-                        await _mods.forEach(m => { if (mods[m].enabled && m != _mods[i]) list += m + '.dll\r\n' })
-                        await fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), list)
+                        await fs.unlinkSync(path.join(localStorage.GDDIR, `/${_mods[i]}.geode`))
+                        //let list = ''
+                        //await _mods.forEach(m => { if (mods[m].enabled && m != _mods[i]) list += m + '.dll\r\n' })
+                        //await fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), list)
                         document.querySelector('#modal').style.opacity = '0'
                         document.querySelector('#modalcontainer').style.opacity = '0'
                         await wait(200)
@@ -206,7 +209,7 @@ const page = async (pg) => {
                 <span><img src="../assets/defaultmod.png" alt="${mod2}'s icon" style="border-radius: 11px; ${packs[mod2].enabled ? '' : 'filter: grayscale(1)'}" height="60" width="60"></span>
                 <span title="${mod2}">${mod2}</span>
                 <span title="v${version2}">v${version2}</span>
-                <span title="${new Date(mods[mod2].time).toLocaleString()} (${getRelativeTime(packs[mod2].time)})">${getRelativeTime(packs[mod2].time)}</span>
+                <span title="${new Date(packs[mod2].time).toLocaleString()} (${getRelativeTime(packs[mod2].time)})">${getRelativeTime(packs[mod2].time)}</span>
             </div>`
         }
         for (let i = 0; i < _mods2.length; i++) {
