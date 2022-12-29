@@ -19,11 +19,9 @@ const page = async (pg) => {
 
     var rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
 
-    var getRelativeTime = (d1, d2 = new Date()) => {
-    var elapsed = d1 - d2
-
-    for (var u in units) 
-        if (Math.abs(elapsed) > units[u] || u == 'second') 
+    const getRelativeTime = (d1, d2 = new Date()) => {
+        var elapsed = d1 - d2
+        for (var u in units) if (Math.abs(elapsed) > units[u] || u == 'second') 
         return rtf.format(Math.round(elapsed/units[u]), u)
     }
 
@@ -31,7 +29,12 @@ const page = async (pg) => {
         switch (pg) {
             case 'library':
 
-                document.querySelector('body > main').innerHTML = `<div style="display: flex; padding: 14px; flex-wrap: wrap; align-content: flex-start">
+                let alloff = true
+
+                document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
+                    <div><h1>Mod Library</h1><p>Edit, Toggle, Manage and  your Installed Mods.</p></div>
+                    <div id="options"><label tabindex="0">Install External Mod<input type="file" accept=".dll" style="display: none"></label><button>Check for Updates</button><button>Disable All Mods</button><button>Sort and Filter <span>\uF282</span></button></div>
+                    <div id="filtermenu"></div>
                     <div id="library">
                         <div>
                             <span></span>
@@ -42,19 +45,22 @@ const page = async (pg) => {
                     </div>
                 </div>`
 
-                let _mods = Object.keys(mods)
-                for (let i = 0; i < _mods.length; i++) {
-                    let mod = _mods[i]
+                for (let i = 0; i < Object.keys(mods).length; i++) {
+                    let mod = Object.keys(mods)[i]
                     let version = `${Math.floor(Math.random() * 5)}.${Math.floor(Math.random() * 12)}.${Math.floor(Math.random() * 30)}`
-                    document.getElementById('library').innerHTML += `<div data-modid="${i}">
-                        <span><img src="../assets/defaultmod.png" alt="${mod}'s icon" style="border-radius: 11px; ${mods[mod].enabled ? '' : 'filter: grayscale(1)'}" height="60" width="60"></span>
+                    document.getElementById('library').innerHTML += `<div data-modid="${i}" tabindex="0">
+                        <span><img src="../assets/defaultmod.png" alt="${mod}'s icon" style="border-radius: 11px; ${mods[mod].enabled ? '' : 'filter: grayscale(1)'}; transition: filter 200ms ease-in-out" height="60" width="60"></span>
                         <span title="${mod}">${mod}</span>
                         <span title="v${version}">v${version}</span>
                         <span title="${new Date(mods[mod].time).toLocaleString()} (${getRelativeTime(mods[mod].time)})">${getRelativeTime(mods[mod].time)}</span>
                     </div>`
+
+                    if (mods[mod].enabled) alloff = false
                 }
 
-                for (let i = 0; i < _mods.length; i++) {
+                if (alloff) document.querySelectorAll('#options button')[1].innerText = 'Enable All Mods'
+
+                for (let i = 0; i < Object.keys(mods).length; i++) {
                     document.querySelector(`#library div[data-modid="${i}"]`).addEventListener('contextmenu', (e) => {
                         let context = document.getElementsByTagName('context')[0]
                         context.innerHTML = ''
@@ -62,36 +68,38 @@ const page = async (pg) => {
                         let disable = context.appendChild(document.createElement('button'))
                         let del = context.appendChild(document.createElement('button'))
                         // update.innerText = 'Update'
-                        if (mods[_mods[i]].enabled) disable.innerText = 'Disable'
+                        if (mods[Object.keys(mods)[i]].enabled) disable.innerText = 'Disable'
                         else disable.innerText = 'Enable'
                         del.innerText = 'Delete'
                         del.id = 'del'
+                        context.style.display = 'flex'
                         context.style.top = e.clientY + 10 + 'px'
                         context.style.left = e.clientX + 10 + 'px'
                         let bounding = context.getBoundingClientRect()
                         if (bounding.bottom >= (window.innerHeight - 5 || document.documentElement.clientHeight - 5)) {
-                            context.style.top = e.clientY - bounding.height - 5 + 'px'
+                            context.style.top = e.clientY - bounding.height + 'px'
                         }
                         if (bounding.right >= (window.innerWidth - 5 || document.documentElement.clientWidth - 5)) {
-                            context.style.left = e.clientX - bounding.width - 5 + 'px'
+                            context.style.left = e.clientX - bounding.width + 'px'
                         }
-                        context.style.display = 'flex'
 
                         disable.addEventListener('click', () => {
                             context.style.display = 'none'
-                            if (mods[_mods[i]].enabled == false) {
-                                mods[_mods[i]].enabled = true
+                            if (mods[Object.keys(mods)[i]].enabled == false) {
+                                mods[Object.keys(mods)[i]].enabled = true
                                 document.querySelector(`#library div[data-modid="${i}"] span img`).style.filter = ''
                             } else {
-                                mods[_mods[i]].enabled = false
+                                mods[Object.keys(mods)[i]].enabled = false
                                 document.querySelector(`#library div[data-modid="${i}"] span img`).style.filter = 'grayscale(1)'
                             }
 
-                            mods[_mods[i]].enabled
+                            mods[Object.keys(mods)[i]].enabled
                             
                             let list = ''
-                            _mods.forEach(m => { if (mods[m].enabled) list += m + '.dll\r\n' })
-                            fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), list)
+                            Object.keys(mods).forEach(m => { if (mods[m].enabled) list += m + '.dll\r\n' })
+                            fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), list)
+                            if (list == '') document.querySelectorAll('#options button')[1].innerText = 'Enable All Mods'
+                            else document.querySelectorAll('#options button')[1].innerText = 'Disable All Mods'
                         })
 
                         del.addEventListener('click', async () => {
@@ -116,15 +124,16 @@ const page = async (pg) => {
                             </div>`
 
                             confirm.querySelector('div').innerHTML = `
-                                <p>Are you sure you want to delete <strong>${_mods[i]}</strong>?</p>
+                                <p>Are you sure you want to delete <strong>${Object.keys(mods)[i]}</strong>?</p>
                                 <p>This action <strong>cannot</strong> be undone!</p>
                             `
 
                             confirm.querySelectorAll('button')[0].addEventListener('click', async () => {
-                                await fs.unlinkSync(path.join(localStorage.GDDIR, `/quickldr/${_mods[i]}.dll`))
+                                await fs.unlinkSync(path.join(storage.GDDIR, `/quickldr/${Object.keys(mods)[i]}.dll`))
                                 let list = ''
-                                await _mods.forEach(m => { if (mods[m].enabled && m != _mods[i]) list += m + '.dll\r\n' })
-                                await fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), list)
+                                await Object.keys(mods).forEach(m => { if (mods[m].enabled && m != Object.keys(mods)[i]) list += m + '.dll\r\n' })
+                                await fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), list)
+                                delete mods[Object.keys(mods)[i]]
                                 document.querySelector('#modal').style.opacity = '0'
                                 document.querySelector('#modalcontainer').style.opacity = '0'
                                 await wait(200)
@@ -149,6 +158,65 @@ const page = async (pg) => {
                     if (document.getElementsByTagName('context')[0].contains(e.target)) return;
                     document.getElementsByTagName('context')[0].style.display = 'none'
                 })
+
+                document.querySelector('#options input').addEventListener('change', async e => {
+                    let mod = e.target.files[0]
+                    if (!mod.name.endsWith('.dll')) return
+                    if (Object.keys(mods).indexOf(mod.name.slice(0, -4)) == -1) {
+                        let read = fs.createReadStream(mod.path)
+                        let write = fs.createWriteStream(path.join(storage.GDDIR, '/quickldr/', mod.name))
+
+                        read.pipe(write)
+
+                        fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), mod.name, { flag: 'a' })
+                        mods[mod.name.slice(0, -4)] = { enabled: true, time: mod.lastModified }
+                        page('library')
+
+                        await wait(400)
+                    }
+
+                    document.querySelector(`#library div[data-modid="${Object.keys(mods).indexOf(mod.name.slice(0, -4))}"]`).scrollIntoView()
+                })
+
+                document.querySelectorAll('#options button')[1].addEventListener('click', e => {                    
+                    if (e.target.innerText.startsWith('Enable')) {
+                        Object.keys(mods).forEach(m => mods[m].enabled = true)
+                        document.querySelectorAll(`#library div span img`).forEach(e => e.style.filter = '')
+                        e.target.innerText = 'Disable All Mods'
+                    } else {
+                        Object.keys(mods).forEach(m => mods[m].enabled = false)
+                        document.querySelectorAll(`#library div span img`).forEach(e => e.style.filter = 'grayscale(1)')
+                        e.target.innerText = 'Enable All Mods'
+                    }
+
+                    let list = ''
+                    Object.keys(mods).forEach(m => { if (mods[m].enabled) list += m + '.dll\r\n' })
+                    fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), list)
+                })
+
+                document.querySelector('main div').ondrop = async e => {
+                    e.preventDefault()
+                    let files = [...e.dataTransfer.files]
+                    let useful = false
+
+                    files.forEach(mod => {
+                        if (Object.keys(mods).indexOf(mod.name.slice(0, -4)) != -1 || !mod.name.endsWith('.dll')) return
+                        useful = true
+                        let read = fs.createReadStream(mod.path)
+                        let write = fs.createWriteStream(path.join(storage.GDDIR, '/quickldr/', mod.name))
+
+                        read.pipe(write)
+
+                        fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), mod.name, { flag: 'a' })
+                        mods[mod.name.slice(0, -4)] = { enabled: true, time: mod.lastModified }
+                    })
+
+                    if (useful) page('library')
+                }
+
+                document.querySelector('main div').ondragover = e => {
+                    e.preventDefault()
+                }
                 
                 resolve()
                 break

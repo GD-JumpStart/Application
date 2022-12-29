@@ -20,12 +20,14 @@ const modal = (o = {}) => new Promise(async (resolve, reject) => {
     }
 
     let mouseleave = async e => {
-        if (e.target.closest('#modal')) return;
+        if (e.target.closest('#modal') || modal.style.opacity == '0') return;
+        console.log('mou se')
         modal.style.opacity = '0'
         modalcontainer.style.opacity = '0'
         await wait(200)
         modalcontainer.style.display = 'none'
         document.removeEventListener('click', mouseleave)
+        document.removeEventListener('click', closemodal)
     }
 
     const modalcontainer = document.getElementById('modalcontainer')
