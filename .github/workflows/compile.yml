@@ -24,6 +24,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./dist/JumpStart Setup ${{ steps.package.outputs.version }}.exe
           asset_name: JumpStart_Setup.exe
-          tag: v${{ steps.package.outputs.version }}
+          tag: v${{ steps.package.outputs.version }}-Win
           prerelease: true
           overwrite: true
