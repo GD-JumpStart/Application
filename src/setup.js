@@ -4,10 +4,9 @@ const https = require('https')
 const path = require('path')
 const decompress = require('decompress')
 const crypto = require('crypto')
+const os = require ('os');
 
 const setup = () => new Promise(async (resolve, reject) => {
-        document.querySelector('#modal').style.opacity = '0'
-        location.reload()
     await new Promise(async resolve => {
         const valid = await new Promise(async resolve => {
             try {
@@ -17,7 +16,8 @@ const setup = () => new Promise(async (resolve, reject) => {
             }
         })
         const dirwindow = await modal({ mouseLeave: false, close: false, title: 'Setup' })
-        let dir = localStorage.GDDIR
+        const username = os.userInfo ().username;
+        let dir = path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/geode/mods')
         dirwindow.innerHTML = `<div style="
             width: 100%;
             display: flex;
@@ -36,42 +36,29 @@ const setup = () => new Promise(async (resolve, reject) => {
             <button id="continue" class="style">Continue</button>
         </div>`
 
-        if (fs.existsSync(localStorage.GDDIR) && valid) dirwindow.querySelector('div').innerHTML = `
+        if (fs.existsSync(storage.GDDIR) && valid) dirwindow.querySelector('div').innerHTML = `
             <p>Do you want to change your game directory?</p>
             <p>This can be used for installing mods with GDPSes.</p>
-            <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" accept=".exe"/>Find Directory</label>
-            <p style="font-size: 70%;" class="muted">Current directory: ${localStorage.GDDIR}</p>
+            <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" accept=".app"/>Find Directory</label>
+            <p style="font-size: 70%;" class="muted">Current directory: ${storage.GDDIR}</p>
         `
         else {
             dirwindow.querySelector('div').innerHTML = `
                 <p>The default game directory could not be found.</p>
                 <p>To continue, please locate to a working directory.</p>
-                <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" accept=".exe"/>Find Directory</label>
+                <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" accept=".app"/>Find Directory</label>
                 <p style="font-size: 70%;" class="muted">Current directory: none</p>
             `
             document.getElementById('continue').classList.add('disabled')
         }
 
         dirwindow.querySelector('input').addEventListener('change', async (e) => {
-            dirwindow.querySelectorAll('p')[2].innerText = 'Current directory: ' + path.join(e.target.files[0].path, '../').replace(/\\/g, '/')
-            const valid = await new Promise(async resolve => {
-                try {
-                    resolve(true)
-                } catch {
-                    resolve(false)
-                }
-            })
-            if (valid) {
-                document.getElementById('continue').classList.remove('disabled')
-                dir = path.join(e.target.files[0].path, '../')
-            } else {
-                document.getElementById('continue').classList.add('disabled')
-            }
+            document.getElementById('continue').classList.remove('disabled')
         })
 
         document.getElementById('continue').addEventListener('click', async () => {
             if (!document.getElementById('continue').className.includes('disabled')) {
-                localStorage.GDDIR = dir
+                storage.GDDIR = dir
                 document.querySelector('#modal').style.opacity = '0'
                 document.querySelector('#modalcontainer').style.opacity = '0'
                 await wait(200)
@@ -128,84 +115,117 @@ const setup = () => new Promise(async (resolve, reject) => {
 
     printconsole('Starting Setup')
 
-    if (!fs.existsSync(path.join(localStorage.GDDIR, 'quickldr.dll'))) {
-        printconsole('Quickldr Not Detected')
-        printconsole('Installing Quickldr...')
-        
-        printconsole('    Downloading .zip')
+    if (!fs.existsSync(path.join(storage.FRAMEWORKS, 'Geode.dylib'))) {
+        printconsole('Geode Loader Not Detected')
+        printconsole('Installing Geode...')
+        printconsole('    Downloading .dylib')
         await new Promise(resolve => {
-            https.get('https://cdn.discordapp.com/attachments/837026406282035300/859008315413626920/quickldr-v1.1.zip', async res => {
-                const fp = fs.createWriteStream(path.join(process.env.TEMP, '/quickldr.zip'))
+            https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056322658297462784/Geode.dylib', async res => {
+                const fp = fs.createWriteStream(path.join(storage.FRAMEWORKS, '/Geode.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
+                    printconsole('    Completed Downloading Geode.dylib')
                     resolve()
                 })
             }).on('error', err => {
-                printconsole('    Unable to Download .zip: ' + err, 'error')
+                printconsole('    Unable to Download .dylib: ' + err, 'error')
                 
             })
+            
         })
-        if (!fs.existsSync(path.join(localStorage.GDDIR, '/libcurl.dll.bak'))) {
-            printconsole('    Creating Backup libcurl.dll')
-            fs.renameSync(path.join(localStorage.GDDIR, '/libcurl.dll'), path.join(localStorage.GDDIR, '/libcurl.dll.bak'))
-        }
-        printconsole('    Unpacking .zip')
-        await new Promise(resolve => {
-            decompress(path.join(process.env.TEMP, '/quickldr.zip'), localStorage.GDDIR)
-                .catch(err => {
-                    printconsole('    Error Unpacking .zip: ' + err, 'error')
-                })
-                .then(() => { resolve() })
-        })
-        if (!fs.existsSync(path.join(localStorage.GDDIR, '/quickldr'))) {
-            printconsole('    Creating Mods Directory')
-            fs.mkdirSync(path.join(localStorage.GDDIR, '/quickldr'))
-        }
-        if (!fs.existsSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'))) {
-            printconsole('    Creating settings.txt')
-            fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), '')
-        }
-        printconsole('    Install Finished')
-    } else printconsole('Quickldr Detected')
+    } else {
+        printconsole('Geode Loader Detected')
+    }
 
-    if (!fs.existsSync(path.join(localStorage.GDDIR, 'minhook.x32.dll'))) {
-        printconsole('Minhook Not Detected')
+    if (!fs.existsSync(path.join(storage.FRAMEWORKS, 'GeodeBootstrapper.dylib'))) {
+        printconsole('Geode Bootstrapper Not Detected')
+        printconsole('Installing Geode Bootstrapper...')
+        printconsole('    Downloading .dylib')
         await new Promise(resolve => {
-            https.get('https://cdn.discordapp.com/attachments/837026406282035300/856484662028795924/minhook.x32.dll', async res => {
-            printconsole('    Downloading minhook.x32.dll')
-                const fp = fs.createWriteStream(path.join(localStorage.GDDIR, '/minhook.x32.dll'))
+            https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056322682288865310/GeodeBootstrapper.dylib', async res => {
+                const fp = fs.createWriteStream(path.join(storage.FRAMEWORKS, '/GeodeBootstrapper.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
+                    printconsole('    Completed Downloading GeodeBootstrapper.dylib')
                     resolve()
                 })
+            }).on('error', err => {
+                printconsole('    Unable to Download .dylib: ' + err, 'error')
+                
             })
+            
         })
     } else {
-        printconsole('Minhook Detected')
+        printconsole('Geode Bootstrapper Detected')
     }
 
-    if (fs.existsSync(path.join(localStorage.GDDIR, 'hackpro.dll'))) {
-        printconsole('Mega Hack v7 Detected')
-        localStorage.MHV7 = true
+    if (fs.existsSync(path.join(storage.FRAMEWORKS, 'libfmod.dylib'))) {
+        printconsole('libfmod Detected')
+        printconsole('Replacing libfmod...')
+        await new Promise(resolve => {
+            fs.rename(path.join(storage.FRAMEWORKS, '/libfmod.dylib'), path.join(storage.FRAMEWORKS, '/libfmod.dylib.original'), (error) => {
+                if (error) {
+                    printconsole('    Unable to Replace libfmod: ' + err, 'error')
+                } else {
+                    printconsole('    Completed Replacing libfmod')
+                    resolve()
+                }
+            });
+            
+        })
+        printconsole('    Downloading New libfmod')
+        await new Promise(resolve => {
+            https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056358949835780207/libfmod.dylib', async res => {
+                const fp = fs.createWriteStream(path.join(storage.FRAMEWORKS, '/libfmod.dylib'))
+                res.pipe(fp)
+                fp.on('finish', () => {
+                    fp.close()
+                    printconsole('    Completed Downloading libfmod.dylib')
+                    resolve()
+                })
+            }).on('error', err => {
+                printconsole('    Unable to Download .dylib: ' + err, 'error')
+                
+            })
+            
+        })
     } else {
-        printconsole('Mega Hack v7 Not Detected')
-        localStorage.MHV7 = false
+        printconsole('libfmod Not Detected')
+        printconsole('Downloading libfmod...')
+        printconsole('    Downloading .dylib')
+        await new Promise(resolve => {
+            https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056358949835780207/libfmod.dylib', async res => {
+                const fp = fs.createWriteStream(path.join(storage.FRAMEWORKS, '/libfmod.dylib'))
+                res.pipe(fp)
+                fp.on('finish', () => {
+                    fp.close()
+                    printconsole('    Completed Downloading libfmod.dylib')
+                    resolve()
+                })
+            }).on('error', err => {
+                printconsole('    Unable to Download .dylib: ' + err, 'error')
+                
+            })
+        })
     }
 
     printconsole('Setup Finished')
     
     document.querySelector('#topsection button').style.display = 'flex'
     document.querySelector('#topsection button').addEventListener('click', async () => {
-        localStorage.NEWUSER = false
+        storage.NEWUSER = false
         document.querySelector('#modal').style.opacity = '0'
         location.reload()
     })
 
+    storage.NEWUSER = false
     printconsole('Please Close This Popup to Continue')
+    storage.NEWUSER = false
 
     resolve()
+    storage.NEWUSER = false
 })
 
 module.exports = setup

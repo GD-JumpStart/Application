@@ -94,8 +94,8 @@ nav {
 aside {
     padding: 0px;
     height: calc(100vh - 44px);
-    min-width: 0px;
-    max-width: 0px;
+    min-width: 200px;
+    max-width: 200px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -112,7 +112,7 @@ aside {
             text-decoration: none;
             padding: 7px;
             font-size: 18px;
-            opacity: 0;
+            //opacity: 1;
             transform: translateY(10px);
             transition: 200ms ease-out;
     
@@ -141,7 +141,8 @@ aside {
         width: 232px;
         padding: 0px;
         border: 1px solid #495057;
-        opacity: 0;
+        //border-bottom-left-radius: 19px;
+        //opacity: 0;
         transform: translateY(10px);
         transition: 200ms ease-out;
 
@@ -150,6 +151,7 @@ aside {
             display: flex;
             align-items: center;
             text-decoration: none;
+            //border-bottom-left-radius: 17px;
             padding: 7px 14px;
             font-size: 18px;
             transition: 200ms ease-out;

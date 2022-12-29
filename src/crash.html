@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>JumpStart</title>
+        <link rel="stylesheet" href="./crash.css" />
+    </head>
+    <body>
+        <context></context>
+        <div id="modalcontainer"><div id="modal"><span id="topsection"><h1></h1><button>&#xF62A;</button></span><main></main></div></div>
+        <nav>
+        <span>
+            <img src="../assets/icon.png" width="25" height="25" style="margin-right: 10px;" alt="JumpStart Logo"/>
+            <h4>JumpStart</h4>
+        </span>
+        <span id="controls">
+            <div id="min"><svg width="12" height="12" viewBox="0 0 12 12"><rect fill="currentColor" width="10" height="1" x="1" y="6"></rect></svg></div>
+            <div id="max"><svg width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect></svg></div>
+            <div onclick="window.close()" id="close"><svg width="12" height="12" viewBox="0 0 12 12"><polygon fill="currentColor" fill-rule="evenodd" points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"></polygon></svg></div>
+        </span>
+        </nav>
+    
+        <main>
+            <center style="height: 100%; flex-direction: column; display: none;">
+                <img id="icon" src="../assets/crash.png" alt="Crash Image">
+                <h1 style="margin: 10px;">Woah now!</h1>
+                <p>Looks like JumpStart ran into an error.</p>
+                <p>If this keeps happening, submit an issue on <a href="javascript:shell.openExternal('https://github.com/GD-JumpStart/Application/issues/new?title=Crash%20Report&body=' + location.search.replace('?c=', ''))">our GitHub</a> to report the error.</p>
+                <button class="style" style="margin: 10px;" onclick="location.href = './index.html'">Reload App</button>
+                <p class="muted" style="font-size: 70%;"></p>
+            </center>
+        </main>
+    </body>
+    
+    <script>
+        const { ipcRenderer, shell } = require('electron')
+        const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+    
+        document.getElementById('min').addEventListener('click', () => {
+            ipcRenderer.send('min')
+        })
+    
+        document.getElementById('max').addEventListener('click', () => {
+            ipcRenderer.send('max')
+        })
+    
+        let elems = document.querySelectorAll('center > *')
+    
+        elems.forEach(e => {
+            e.style.opacity = '0'
+            e.style.transform = 'translateY(10px)'
+            e.style.transition = '200ms ease-out'
+        })
+    
+        document.getElementsByTagName('center')[0].style.display = ''
+    
+        try { document.querySelector('p.muted').innerText = decodeURIComponent(location.search.replace('?c=', '')) } catch { }
+    
+        document.getElementById('icon').onload = async () => {
+            for (let i = 0; i < elems.length; i++) {
+                await wait(100)
+                elems[i].style.opacity = '1'
+                elems[i].style.transform = 'none'
+            }
+        }
+    </script>
+    
+</html>
