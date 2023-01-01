@@ -294,6 +294,7 @@ loading {
 }
 
 *::-webkit-scrollbar {
+    height: 12px;
     width: 12px;
     border-radius: 6px;
 }
@@ -355,6 +356,7 @@ loading {
     div {
         display: flex;
         overflow-x: auto;
+        scroll-snap-type: x mandatory;
 
         button {
             margin: 10px;
@@ -370,6 +372,8 @@ loading {
             border-radius: 10px;
             display: flex;
             align-items: flex-end;
+            flex-shrink: 0;
+            scroll-snap-align: start;
 
             &:hover {
                 transform: scale(1.05) translateY(-1px);
@@ -386,6 +390,7 @@ loading {
                 border-bottom-left-radius: 10px;
                 border-bottom-right-radius: 10px;
                 display: flex;
+                box-shadow: inset 0px 0px 20px 0px #0008;
 
                 img {
                     height: 70px;

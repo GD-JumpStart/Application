@@ -260,7 +260,7 @@ module.exports = async (pg, ex = {}) => {
                                         <div>
                                             <img src="https://github.com/GD-JumpStart/Mods/raw/main/${data.name}/icon.png">
                                             <span>
-                                                <p>${data.name}</p>
+                                                <h4>${data.name}</h4>
                                                 <p>${moddata.author} - v${moddata.version}</p>
                                             </span>
                                         </div>
