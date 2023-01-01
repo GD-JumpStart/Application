@@ -1,4 +1,4 @@
-const modal = (o = {}) => new Promise(async (resolve, reject) => {
+module.exports = (o = {}) => new Promise(async (resolve, reject) => {
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
     const options = {
@@ -71,5 +71,3 @@ const modal = (o = {}) => new Promise(async (resolve, reject) => {
     if (options.mouseLeave) document.addEventListener('click', mouseleave)
     resolve(modal.getElementsByTagName('main')[0])
 })
-
-module.exports = modal

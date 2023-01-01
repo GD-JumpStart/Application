@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="./index.css" />
 </head>
 
-<script>
+<!-- <script>
   window.onunhandledrejection = e => {
     location.href = './crash.html?c=' + encodeURIComponent('Unhandled Rejection: No further info available.')
   }
@@ -15,7 +15,7 @@
     if (m == 'Uncaught EvalError: Possible side-effect in debug-evaluate') return
     location.href = './crash.html?c=' + encodeURIComponent(`${m} :: ${u}@${l}:${c}`)
   }
-</script>
+</script> -->
 
 <body>
   <context></context>
@@ -98,6 +98,7 @@
     await new Promise(async resolve => {
       document.getElementById('load').style.opacity = '1'
       await wait(300)
+      if (storage.UUID == undefined) storage.UUID = crypto.randomUUID()
       if (storage.NEWUSER == undefined || storage.NEWUSER != false) {
         document.querySelector('center h2').innerText = 'Welcome to JumpStart'
         document.querySelectorAll('center p')[0].innerHTML = 'To get started, <a href="javascript:setup()">run a quick setup</a>.'
@@ -140,6 +141,7 @@
               }
             }
             if (data == null) return
+            data.tag_name = data.tag_name.slice(0, -4)
             if (package.version < data.tag_name.substr(1) && storage.UPDATE < Date.now()) {
               let update = await modal()
               update.innerHTML = `<div style="

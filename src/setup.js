@@ -5,7 +5,7 @@ const path = require('path')
 const decompress = require('decompress')
 const crypto = require('crypto')
 
-const setup = () => new Promise(async (resolve, reject) => {
+module.exports = () => new Promise(async (resolve, reject) => {
     await new Promise(async resolve => {
         const valid = await new Promise(async resolve => {
             if (!fs.existsSync(path.join(storage.GDDIR, storage.GDEXE))) {
@@ -257,5 +257,3 @@ const setup = () => new Promise(async (resolve, reject) => {
 
     resolve()
 })
-
-module.exports = setup

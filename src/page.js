@@ -1,4 +1,4 @@
-const page = async (pg) => {
+module.exports = async (pg, ex = {}) => {
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
     document.querySelector('body > main > *').style.opacity = '0'
@@ -219,6 +219,58 @@ const page = async (pg) => {
                 }
                 
                 resolve()
+
+                break
+            case 'store':
+                
+                document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
+                    <div><h1>Mod Library</h1><p>Edit, Toggle, Manage and  your Installed Mods.</p></div>
+                    <div id="store"></div>
+                </div>`
+
+                https.get({
+                    hostname: 'api.github.com',
+                    path: '/repos/GD-JumpStart/Mods/contents',
+                    headers: {
+                        'User-Agent': navigator.userAgent + `User ${storage.UUID}`
+                    }
+                }, res => {
+                    let _data = ''
+                    res.on('data', (d) => _data += d)
+                    res.on('end', async () => {
+                        _data = JSON.parse(_data)
+                        document.getElementById('store').innerHTML += '<h2>Popular</h2>'
+                        let div = document.getElementById('store').appendChild(document.createElement('div'))
+                        for (let i = 0; i < _data.length; i++) {
+                            let data = _data[i]
+                            https.get({
+                                hostname: 'raw.githubusercontent.com',
+                                path: `/GD-JumpStart/Mods/main/${data.name}/mod.json`,
+                                headers: {
+                                    'User-Agent': navigator.userAgent + `User ${storage.UUID}`
+                                }
+                            }, res => {
+                                let moddata = ''
+                                res.on('data', (d) => moddata += d)
+                                res.on('end', async () => {
+                                    moddata = JSON.parse(moddata)
+                                    div.innerHTML += `<button href="https://github.com/GD-JumpStart/Mods/raw/main/${data.name}/${data.name}.dll" style="
+                                        background-image: url('https://github.com/GD-JumpStart/Mods/raw/main/${data.name}/header.png')
+                                    ">
+                                        <div>
+                                            <img src="https://github.com/GD-JumpStart/Mods/raw/main/${data.name}/icon.png">
+                                            <span>
+                                                <p>${data.name}</p>
+                                                <p>${moddata.author} - v${moddata.version}</p>
+                                            </span>
+                                        </div>
+                                    </button>`
+                                })
+                            })
+                        }
+                    })
+                })
+                
                 break
             default:
 
@@ -232,5 +284,3 @@ const page = async (pg) => {
     await wait(200)
     document.querySelector('body > main > *').style.opacity = '1'
 }
-
-module.exports = page
