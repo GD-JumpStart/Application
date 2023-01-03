@@ -7,6 +7,18 @@
   <link rel="stylesheet" href="./index.css" />
 </head>
 
+<script>
+  /*
+  window.onunhandledrejection = e => {
+    location.href = './crash.html?c=' + encodeURIComponent('Unhandled Rejection: No further info available.')
+  }
+  window.onerror = (m, u, l, c) => {
+    if (m == 'Uncaught EvalError: Possible side-effect in debug-evaluate') return
+    location.href = './crash.html?c=' + encodeURIComponent(`${m} :: ${u}@${l}:${c}`)
+  }
+  */
+</script>
+
 <body>
   <context></context>
   <div id="modalcontainer"><div id="modal"><span id="topsection"><h1></h1><button>&#xF62A;</button></span><main></main></div></div>
@@ -60,15 +72,19 @@
   const modal = require('./modal')
   const setup = require('./setup')
   const page = require('./page')
-  const install = require('./install')
+  const options = require('./options')
   const package = require('../package.json')
+  const crypto = require('crypto')
   const os = require ('os');
-  let storage
-  try { fs.mkdirSync(path.join(process.env.LOCALAPPDATA, 'JumpStart')) } catch {}
-  try { storage = JSON.parse(atob(fs.readFileSync(path.join(process.env.LOCALAPPDATA, 'JumpStart/storage.json'))).toString()) } catch { storage = {} }
-  const mods = {}
+  const AdmZip = require("adm-zip");
   const packs = {}
+  let storage
+  const username = os.userInfo ().username;
+  try { fs.mkdirSync(path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/', 'JumpStart')) } catch {}
+  try { storage = JSON.parse(atob(fs.readFileSync(path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/', 'JumpStart/storage.json'))).toString()) } catch { storage = {} }
+  const mods = {}
   const installs = {}
+  const saves = {}
 
   document.getElementById('min').addEventListener('click', () => {
       ipcRenderer.send('min')
@@ -80,7 +96,7 @@
   })
 
   window.onunload = async e => {
-    await fs.writeFileSync(path.join(process.env.LOCALAPPDATA, 'JumpStart/storage.json'), btoa(JSON.stringify(storage)))
+    await fs.writeFileSync(path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/', 'JumpStart/storage.json'), btoa(JSON.stringify(storage)))
   }
 
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -102,16 +118,15 @@
         document.querySelectorAll('center p')[0].innerHTML = 'To get started, <a href="javascript:setup()">run a quick setup</a>.'
         document.querySelectorAll('center p')[1].innerText = 'The setup will make sure your game has a modloader, and will integrate with your current one if available'
         document.querySelectorAll('aside *').forEach(e => { e.style.display = 'none' })
+      } else {
+        if (storage.UUID == undefined) storage.UUID = crypto.randomUUID()
         storage.MHV7 = false
         const username = os.userInfo ().username;
-        storage.USERNAME = path.join('/Users/', username)
-        storage.DEFAULT = path.join(storage.USERNAME, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/')
+        storage.DEFAULT = path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/')
         storage.GDDIR = path.join(storage.DEFAULT, 'geode/mods/')
         storage.FRAMEWORKS = path.join(storage.DEFAULT, 'Frameworks/')
         storage.RESOURCE = path.join(storage.DEFAULT, 'Resources/')
         storage.UPDATE = 0
-      } else {
-        const username = os.userInfo ().username;
         document.getElementById('icon').style.transform = 'translateY(0px)'
         let _p = await fs.readdirSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/geode/mods'))
         await _p.forEach(async f => {
@@ -121,11 +136,19 @@
           }
         })
 
-        let _m = await fs.readdirSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Resources'))
+        let _m = await fs.readdirSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/JumpStart-Resources'))
         await _m.forEach(async f => {
-          let t = await fs.statSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Resources')).mtime.getTime()
-          if (f.endsWith('.rtf')) {
+          let t = await fs.statSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/JumpStart-Resources')).mtime.getTime()
+          if (f.endsWith('.zip')) {
             packs[f.slice(0, -4)] = { enabled: false, time: t }
+          }
+        })
+
+        let _s = await fs.readdirSync(path.join('/Users/', username, '/Library/Application Support/GeometryDash'))
+        await _s.forEach(async f => {
+          let t = await fs.statSync(path.join('/Users/', username, '/Library/Application Support/GeometryDash')).mtime.getTime()
+          if (f.endsWith('.zip')) {
+            saves[f.slice(0, -4)] = { enabled: false, time: t }
           }
         })
 
@@ -134,7 +157,7 @@
           let t = await fs.statSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Frameworks', f)).mtime.getTime()
           let p = path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Frameworks', f)
           if (f.endsWith('.dylib')) {
-            installs[f.slice(0, -6)] = { enabled: false, type: t, path: p}
+            //installs[f.slice(0, -6)] = { enabled: false, type: t, path: p}
           }
         })
 
@@ -156,6 +179,7 @@
               }
             }
             if (data == null) return
+            data.tag_name = data.tag_name.slice(0, -4)
             if (package.version < data.tag_name.substr(1) && storage.UPDATE < Date.now()) {
               let update = await modal()
               update.innerHTML = `<div style="
@@ -211,6 +235,7 @@
 
     //document.getElementById('icon').style.transform = 'translateY(-10px) rotate(15deg)';
 
+    /*
     (async function () {
       if (storage.NEWUSER == 'false') {
         document.querySelectorAll('body > main, body > aside').forEach(e => { e.style.transition = '800ms ease-in-out' })
@@ -223,7 +248,7 @@
         document.querySelectorAll('body > main, body > aside').forEach(e => { e.style.transition = '' })
       }
     })()
-
+    
     await wait(500)
     document.querySelectorAll('center h2, center p')[0].style.transform = 'translateY(0px)'
     document.querySelectorAll('center h2, center p')[0].style.opacity = '1'
@@ -244,6 +269,7 @@
     await wait(100)
     document.querySelector('aside div').style.transform = 'translateY(0px)'
     document.querySelector('aside div').style.opacity = '1'
+    */
   })
 </script>
 
