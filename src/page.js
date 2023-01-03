@@ -132,7 +132,7 @@ const page = async (pg) => {
                     `
 
                     confirm.querySelectorAll('button')[0].addEventListener('click', async () => {
-                        await fs.unlinkSync(path.join(storage.GDDIR, `${Object.keys(mods)[i]}.geode`))
+                        await fs.unlinkSync(path.join(gdfiles, `Contents/geode/mods/${Object.keys(mods)[i]}.geode`))
                         //let list = ''
                         //await _mods.forEach(m => { if (mods[m].enabled && m != _mods[i]) list += m + '.dll\r\n' })
                         //await fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), list)
@@ -183,7 +183,7 @@ const page = async (pg) => {
 
                     confirm.querySelectorAll('button')[1].addEventListener('click', async () => {
                         let renameName = modName.value;
-                        await fs.renameSync(path.join(storage.GDDIR, `/${mods[Object.keys(mods)[i]]}.geode`), path.join(storage.GDDIR, `/${renameName}.geode`))
+                        await fs.renameSync(path.join(gdfiles, `Contents/geode/mods/${mods[Object.keys(mods)[i]]}.geode`), path.join(gdfiles, `Contents/geode/mods/${renameName}.geode`))
                         document.querySelector(`#library span[title="${mods[Object.keys(mods)[i]]}"]`).innerHTML = `<span title="${renameName}">${renameName}</span>`
                         document.querySelector('#modal').style.opacity = '0'
                         document.querySelector('#modalcontainer').style.opacity = '0'
@@ -331,42 +331,21 @@ const page = async (pg) => {
         resolve();
         break
         case 'installations':
-            document.querySelector('body > main').innerHTML = `<div style="display: flex; padding: 14px; flex-wrap: wrap; align-content: flex-start">
+            let _mods3 = Object.keys(installs)
+        document.querySelector('body > main').innerHTML = `
+        <div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
+            <div><h1>Installations</h1><p>Launch, Manage, and <a id="add">Add</a> GD Installations.</p></div>
+        <div style="display: flex; padding: 14px; flex-wrap: wrap; align-content: flex-start">
             <div id="library">
                 <div>
                     <span></span>
-                    <span>Mod Name</span>
-                    <span>Version</span>
-                    <span>Last Modified</span>
+                    <span>Installation Name</span>
+                    <span>Type of Game</span>
+                    <span>Path to Installation</span>
                 </div>
             </div>
         </div>`
-
-        let _mods3 = Object.keys(installs)
-        for (let i = 0; i < _mods3.length; i++) {
-            let mod = _mods3[i]
-            let version = `${Math.floor(Math.random() * 5)}.${Math.floor(Math.random() * 12)}.${Math.floor(Math.random() * 30)}`
-            document.getElementById('library').innerHTML += `<div data-modid="${i}">
-                <span><img src="../assets/defaultmod.png" alt="${mod}'s icon" style="border-radius: 11px; ${installs[mod].enabled ? '' : 'filter: grayscale(1)'}" height="60" width="60"></span>
-                <span title="${mod}">${mod}</span>
-                <span title="${installs[mod].type}">${installs[mod].type}</span>
-                <span title="${installs[mod].path}">${installs[mod].path}</span>
-            </div>`
-        }
-        if (_mods3.length == 0) {
-            document.querySelector('body > main').innerHTML = `
-            <center style="height: 100%; flex-direction: column;">
-      <loading id="load" style="position: absolute; opacity: 0; bottom: calc(50% - 10px);"></loading>
-      <h2 style="margin: 10px 0px; transform: translateY(10px); transition: 200ms ease-out">No installations to manage</h2>
-      <p style="transform: translateY(10px); transition: 200ms ease-out">You have no installations! Manage your installations by <a id="idk">adding one</a> first.</p>
-  </div>
-    </center>
-            `
-        }
-        let installNameVal = ''
-        let installPathVal = ''
-        let installTypeVal = ''
-        idk.addEventListener('click', async () => {
+        add.addEventListener('click', async () => {
             const newInstall = await modal({ title: 'New Installation' })
             newInstall.innerHTML = `<div style="
                         width: 100%;
@@ -399,47 +378,22 @@ const page = async (pg) => {
                 </select>
             `
             newInstall.querySelectorAll('button')[1].addEventListener('click', async () => {
-                document.querySelector('body > main').innerHTML = `<div style="display: flex; padding: 14px; flex-wrap: wrap; align-content: flex-start">
-                <div id="library">
-                        <div>
-                        <span></span>
-                        <span>Installation Name</span>
-                        <span>Path</span>
-                        <span>Type</span>
-                        </div>
-                    </div>
-                </div>`
-                installNameVal = installName.value;
-                installPathVal = installPath.value;
-                installTypeVal = installType.value;
-                document.getElementById('library').innerHTML += `<div id="the" data-modid="1">
-                        <span><img src="../assets/defaultmod.png" alt="${installNameVal}'s icon" style="border-radius: 11px;" height="60" width="60"></span>
-                        <span title="${installNameVal}">${installNameVal}</span>
-                        <span title="${installPathVal}">${installPathVal}</span>
-                        <span title="${installTypeVal}">${installTypeVal}</span>
-                    </div>`
-                    document.querySelector(`#library div[data-modid="1"]`).addEventListener('click', async () => {
-                        if (installTypeVal != 'legalGame') {
-                            exec(`open -a '${installPathVal}'`, (error, stdout, stderr) => {
-                                if (error) {
-                                    console.log(`error: ${error.message}`);
-                                    return;
-                                }
-                                if (stderr) {
-                                    console.log(`stderr: ${stderr}`);
-                                    return;
-                                }
-                                console.log(`stdout: ${stdout}`);
-                            });
-                        } else {
-                            location.href = 'steam://rungameid/322170'
-                        }
-                    })
+                const username = os.userInfo ().username;
                 document.querySelector('#modal').style.opacity = '0'
                 document.querySelector('#modalcontainer').style.opacity = '0'
                 await wait(200)
+                if (document.getElementById('installType').value) document.getElementById('installPath').value = path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/')
                 document.querySelector('#modalcontainer').style.display = 'none'
+                let install = { 
+                    path: document.getElementById('installPath').value, 
+                    type: document.getElementById('installType').value,
+                    enabled: false
+                };
+    
+                let installData = JSON.stringify(install);
+                fs.writeFileSync(path.join('/Users/', username, 'Library/Application Support/JumpStart/', `Installations/${document.getElementById('installName').value}.json`), installData);
             })
+
             newInstall.querySelectorAll('button')[0].addEventListener('click', async () => {
                 document.querySelector('#modal').style.opacity = '0'
                 document.querySelector('#modalcontainer').style.opacity = '0'
@@ -447,103 +401,28 @@ const page = async (pg) => {
                 document.querySelector('#modalcontainer').style.display = 'none'
             })
         })
-        /*
-        
-        */
         for (let i = 0; i < _mods3.length; i++) {
-            document.querySelector(`#library div[data-modid="${i}"]`).addEventListener('click', (e) => {
-                let installNameVal = ''
-                    let installPathVal = ''
-                    let installTypeVal = ''
-                const newInstall = modal({ title: 'New Installation' })
-                newInstall.innerHTML = `<div style="
-                        width: 100%;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        flex-direction: column;
-                    "></div><div style="
-                        padding: 10px;
-                        height: 43px;
-                        border-top: 1px #343a40 solid;
-                        margin-top: 10px;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center
-                    ">
-                        <button id="continue" class="style">Cancel</button><button id="installAdd" class="style">Add Installation</button>
-                    </div>`
-            newInstall.querySelector('div').innerHTML = `
-                <label for="installName">Installation Name:</label>
-                <input type="text" id="installName" name="installName" class="style" required
-                minlength="2" maxlength="16" size="20">
-                <label for="installPath">Installation Path:</label>
-                <input type="text" id="installPath" name="installPath" class="style" required
-                minlength="2" maxlength="100" size="20">
-                <label for="installType">Installation Type</label>
-                <select id="installType" name="installType">
-                <option value="legalGame">Unmodified Steam Game</option>
-                <option value="modifiedGame">Cracked or Modified Game</option>
-                </select>
-            `
-            newInstall.querySelectorAll('button')[1].addEventListener('click', async () => {
-                document.querySelector('body > main').innerHTML = `<div style="display: flex; padding: 14px; flex-wrap: wrap; align-content: flex-start">
-                <div id="library">
-                        <div>
-                        <span></span>
-                        <span>Installation Name</span>
-                        <span>Path</span>
-                        <span>Type</span>
-                        </div>
-                    </div>
-                </div>`
-                installNameVal = installName.value;
-                installPathVal = installPath.value;
-                installTypeVal = installType.value;
-                document.getElementById('library').innerHTML += `<div id="the" data-modid="1">
-                        <span><img src="../assets/defaultmod.png" alt="${installNameVal}'s icon" style="border-radius: 11px;" height="60" width="60"></span>
-                        <span title="${installNameVal}">${installNameVal}</span>
-                        <span title="${installPathVal}">${installPathVal}</span>
-                        <span title="${installTypeVal}">${installTypeVal}</span>
-                    </div>`
-                    document.querySelector(`#library div[data-modid="1"]`).addEventListener('click', async () => {
-                        if (installTypeVal != 'legalGame') {
-                            exec(`open -a '${installPathVal}'`, (error, stdout, stderr) => {
-                                if (error) {
-                                    console.log(`error: ${error.message}`);
-                                    return;
-                                }
-                                if (stderr) {
-                                    console.log(`stderr: ${stderr}`);
-                                    return;
-                                }
-                                console.log(`stdout: ${stdout}`);
-                            });
-                        } else {
-                            location.href = 'steam://rungameid/322170'
-                        }
-                    })
-                    document.querySelector('#modal').style.opacity = '0'
-                    document.querySelector('#modalcontainer').style.opacity = '0'
-                    await wait(200)
-                    document.querySelector('#modalcontainer').style.display = 'none'
-                })
-                newInstall.querySelectorAll('button')[0].addEventListener('click', async () => {
-                    document.querySelector('#modal').style.opacity = '0'
-                    document.querySelector('#modalcontainer').style.opacity = '0'
-                    await wait(200)
-                    document.querySelector('#modalcontainer').style.display = 'none'
-                })
-            })
+            let mod = _mods3[i]
+            let version = `${Math.floor(Math.random() * 5)}.${Math.floor(Math.random() * 12)}.${Math.floor(Math.random() * 30)}`
+            document.getElementById('library').innerHTML += `<div data-modid="${i}">
+                <span><img src="../assets/defaultmod.png" alt="${mod}'s icon" style="border-radius: 11px; ${installs[mod].enabled ? '' : 'filter: grayscale(1)'}" height="60" width="60"></span>
+                <span title="${mod}">${mod}</span>
+                <span title="${installs[mod].type}">${installs[mod].type}</span>
+                <span title="${installs[mod].path}">${installs[mod].path}</span>
+            </div>`
+        }
+        for (let i = 0; i < _mods3.length; i++) {
             document.querySelector(`#library div[data-modid="${i}"]`).addEventListener('contextmenu', (e) => {
                 let context = document.getElementsByTagName('context')[0]
                 context.innerHTML = ''
                 // let update = context.appendChild(document.createElement('button'))
+                let setDef = context.appendChild(document.createElement('button'))
                 let disable = context.appendChild(document.createElement('button'))
                 let rename = context.appendChild(document.createElement('button'))
                 let del = context.appendChild(document.createElement('button'))
                 // update.innerText = 'Update'
-                disable.innerText = 'Add New'
+                setDef.innerText = 'Set as Main'
+                disable.innerText = 'Launch'
                 del.innerText = 'Delete'
                 del.id = 'del'
                 rename.innerText = 'Rename'
@@ -558,6 +437,37 @@ const page = async (pg) => {
                     context.style.left = e.clientX - bounding.width - 5 + 'px'
                 }
                 context.style.display = 'flex'
+
+                disable.addEventListener('click', () => {
+                    const username = os.userInfo ().username;
+                    if (installs[_mods3[i]].type != 'legalGame') {
+                        exec(`open '${installs[_mods3[i]].path}'`, (error, stdout, stderr) => {
+                            if (error) {
+                                console.log(`error: ${error.message}`);
+                                return;
+                            }
+                            if (stderr) {
+                                console.log(`stderr: ${stderr}`);
+                                return;
+                            }
+                            console.log(`stdout: ${stdout}`);
+                        });
+                    } else {
+                        location.href = 'steam://rungameid/322170'
+                    }
+                    installs[_mods3[i]].enabled
+                })
+
+                setDef.addEventListener('click', () => {
+                    for (let n = 0; n < _mods3.length; n++) {
+                        installs[_mods3[n]].enabled = false
+                    }
+                    context.style.display = 'none'
+                    installs[_mods3[i]].enabled = true
+                    document.querySelector(`#library div[data-modid="${i}"] span img`).style.filter = ''
+                    gdfiles = installs[_mods3[i]].path
+                    installs[_mods3[i]].enabled
+                })
 
                 del.addEventListener('click', async () => {
                     context.style.display = 'none'
@@ -577,7 +487,7 @@ const page = async (pg) => {
                         justify-content: space-between;
                         align-items: center
                     ">
-                        <button id="continue" class="style red">Delete Mod</button><button id="continue" class="style">Nevermind</button>
+                        <button id="continue" class="style red">Delete Installation</button><button id="continue" class="style">Nevermind</button>
                     </div>`
 
                     confirm.querySelector('div').innerHTML = `
@@ -586,7 +496,7 @@ const page = async (pg) => {
                     `
 
                     confirm.querySelectorAll('button')[0].addEventListener('click', async () => {
-                        await fs.unlinkSync(path.join(storage.GDDIR, `/${_mods3[i]}.geode`))
+                        await fs.unlinkSync(path.join('/Users/', username, 'Library/Application Support/JumpStart/', `Installations/${_mods3[i]}.json`))
                         //let list = ''
                         //await _mods.forEach(m => { if (mods[m].enabled && m != _mods[i]) list += m + '.dll\r\n' })
                         //await fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), list)
@@ -636,8 +546,7 @@ const page = async (pg) => {
                     `
 
                     confirm.querySelectorAll('button')[1].addEventListener('click', async () => {
-                        let renameName = modName.value;
-                        await fs.renameSync(path.join(storage.GDDIR, `/${_mods3[i]}.geode`), path.join(storage.GDDIR, `/${renameName}.geode`))
+                        await fs.renameSync(path.join('/Users/', username, '/Library/Application Support/JumpStart/Installations/', `${document.getElementById('modName').value}.json`))
                         document.querySelector('#modal').style.opacity = '0'
                         document.querySelector('#modalcontainer').style.opacity = '0'
                         await wait(200)
@@ -718,9 +627,8 @@ const page = async (pg) => {
                     packs[_mods4[i]].enabled = true
                     document.querySelector(`#library div[data-modid="${i}"] span img`).style.filter = ''
                     const username = os.userInfo ().username;
-                    const directory = path.join('/Users/', username, `/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Resources`);
-                    var enabledPack = new AdmZip(path.join('/Users/', username, `/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/JumpStart-Resources/${_mods4[i]}.zip`)); 
-                    enabledPack.extractAllTo(path.join('/Users/', username, `/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Resources`), true);
+                    var enabledPack = new AdmZip(path.join('/Users/', username, `/Library/Application Support/JumpStart/JumpStart-Resources/${_mods4[i]}.zip`));
+                    enabledPack.extractAllTo(path.join(gdfiles, 'Contents/Resources/'), true);
                     packs[_mods4[i]].enabled
                 })
 
@@ -752,7 +660,7 @@ const page = async (pg) => {
 
                     confirm.querySelectorAll('button')[0].addEventListener('click', async () => {
                         const username = os.userInfo ().username;
-                        await fs.unlinkSync(path.join('/Users/', username, '/Library/Application Support/GeometryDash/', `/${_mods4[i]}.zip`))
+                        await fs.unlinkSync(path.join('/Users/', username, `/Library/Application Support/JumpStart/JumpStart-Resources/${_mods4[i]}.zip`))
                         //let list = ''
                         //await _mods.forEach(m => { if (mods[m].enabled && m != _mods[i]) list += m + '.dll\r\n' })
                         //await fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), list)
@@ -804,7 +712,7 @@ const page = async (pg) => {
                     confirm.querySelectorAll('button')[1].addEventListener('click', async () => {
                         let renameName = texName.value;
                         const username = os.userInfo ().username;
-                        await fs.renameSync(path.join('/Users/', username, '/Library/Application Support/GeometryDash/', `${_mods4[i]}.zip`), path.join('/Users/', username, '/Library/Application Support/GeometryDash/', `${renameName}.zip`))
+                        await fs.renameSync(path.join('/Users/', username, `/Library/Application Support/JumpStart/JumpStart-Resources/${_mods4[i]}.zip`), path.join('/Users/', username, `/Library/Application Support/JumpStart/JumpStart-Resources/${renameName}.zip`))
                         document.querySelector(`#library span[title="${_mods4[i]}"]`).innerHTML = `<span title="${renameName}">${renameName}</span>`
                         document.querySelector('#modal').style.opacity = '0'
                         document.querySelector('#modalcontainer').style.opacity = '0'

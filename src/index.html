@@ -80,11 +80,14 @@
   const packs = {}
   let storage
   const username = os.userInfo ().username;
-  try { fs.mkdirSync(path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/', 'JumpStart')) } catch {}
-  try { storage = JSON.parse(atob(fs.readFileSync(path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/', 'JumpStart/storage.json'))).toString()) } catch { storage = {} }
+  try { fs.mkdirSync(path.join('/Users/', username, 'Library/Application Support/', 'JumpStart')) } catch {}
+  try { 
+    storage = JSON.parse(atob(fs.readFileSync(path.join('/Users/', username, 'Library/Application Support/', 'JumpStart/storage.json'))).toString())
+  } catch { storage = {} }
   const mods = {}
   const installs = {}
   const saves = {}
+  var gdfiles = path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/')
 
   document.getElementById('min').addEventListener('click', () => {
       ipcRenderer.send('min')
@@ -96,7 +99,7 @@
   })
 
   window.onunload = async e => {
-    await fs.writeFileSync(path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/', 'JumpStart/storage.json'), btoa(JSON.stringify(storage)))
+    await fs.writeFileSync(path.join('/Users/', username, 'Library/Application Support/', 'JumpStart/storage.json'), btoa(JSON.stringify(storage)))
   }
 
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -113,20 +116,18 @@
       document.getElementById('load').style.opacity = '1'
       await wait(300)
       document.getElementById('load').style.opacity = '0'
-      if (storage.NEWUSER == undefined || storage.NEWUSER != 'false') {
+      if (localStorage.NEWUSER == undefined || localStorage.NEWUSER != 'false') {
+        if (localStorage.UUID == undefined) localStorage.UUID = crypto.randomUUID()
+        localStorage.MHV7 = false
+        const username = os.userInfo ().username;
+        localStorage.GDDIR = path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/')
+        localStorage.JUMPSTART = path.join('/Users/', username, 'Library/Application Support/JumpStart/')
+        localStorage.UPDATE = 0
         document.querySelector('center h2').innerText = 'Welome to JumpStart'
         document.querySelectorAll('center p')[0].innerHTML = 'To get started, <a href="javascript:setup()">run a quick setup</a>.'
         document.querySelectorAll('center p')[1].innerText = 'The setup will make sure your game has a modloader, and will integrate with your current one if available'
         document.querySelectorAll('aside *').forEach(e => { e.style.display = 'none' })
       } else {
-        if (storage.UUID == undefined) storage.UUID = crypto.randomUUID()
-        storage.MHV7 = false
-        const username = os.userInfo ().username;
-        storage.DEFAULT = path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/')
-        storage.GDDIR = path.join(storage.DEFAULT, 'geode/mods/')
-        storage.FRAMEWORKS = path.join(storage.DEFAULT, 'Frameworks/')
-        storage.RESOURCE = path.join(storage.DEFAULT, 'Resources/')
-        storage.UPDATE = 0
         document.getElementById('icon').style.transform = 'translateY(0px)'
         let _p = await fs.readdirSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/geode/mods'))
         await _p.forEach(async f => {
@@ -136,9 +137,9 @@
           }
         })
 
-        let _m = await fs.readdirSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/JumpStart-Resources'))
+        let _m = await fs.readdirSync(path.join('/Users/', username, '/Library/Application Support/JumpStart/JumpStart-Resources'))
         await _m.forEach(async f => {
-          let t = await fs.statSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/JumpStart-Resources')).mtime.getTime()
+          let t = await fs.statSync(path.join('/Users/', username, '/Library/Application Support/JumpStart/JumpStart-Resources')).mtime.getTime()
           if (f.endsWith('.zip')) {
             packs[f.slice(0, -4)] = { enabled: false, time: t }
           }
@@ -151,13 +152,14 @@
             saves[f.slice(0, -4)] = { enabled: false, time: t }
           }
         })
-
-        let _i = await fs.readdirSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Frameworks')) 
+        ///Users/trooper/Downloads/GDCracked(1)/NonSteamGD.app/
+        let _i = await fs.readdirSync(path.join('/Users/', username, 'Library/Application Support/JumpStart/', 'Installations')) 
         await _i.forEach(async f => {
-          let t = await fs.statSync(path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Frameworks', f)).mtime.getTime()
-          let p = path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/Frameworks', f)
-          if (f.endsWith('.dylib')) {
-            //installs[f.slice(0, -6)] = { enabled: false, type: t, path: p}
+          let t = await fs.statSync(path.join('/Users/', username, 'Library/Application Support/JumpStart/', '/Installations', f)).mtime.getTime()
+          if (f.endsWith('.json')) {
+            var jsonString = fs.readFileSync(path.join('/Users/', username, 'Library/Application Support/JumpStart/', 'Installations', f));
+            jsonString = JSON.parse(jsonString)
+            installs[f.slice(0, -5)] = { enabled: jsonString.enabled, type: jsonString.type, path: jsonString.path}
           }
         })
 

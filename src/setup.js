@@ -5,6 +5,8 @@ const path = require('path')
 const decompress = require('decompress')
 const crypto = require('crypto')
 const os = require ('os');
+const username = os.userInfo ().username;
+let dir = path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents')
 
 const setup = () => new Promise(async (resolve, reject) => {
     await new Promise(async resolve => {
@@ -16,8 +18,6 @@ const setup = () => new Promise(async (resolve, reject) => {
             }
         })
         const dirwindow = await modal({ mouseLeave: false, close: false, title: 'Setup' })
-        const username = os.userInfo ().username;
-        let dir = path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents/geode/mods')
         dirwindow.innerHTML = `<div style="
             width: 100%;
             display: flex;
@@ -36,11 +36,11 @@ const setup = () => new Promise(async (resolve, reject) => {
             <button id="continue" class="style">Continue</button>
         </div>`
 
-        if (fs.existsSync(storage.GDDIR) && valid) dirwindow.querySelector('div').innerHTML = `
+        if (fs.existsSync(dir) && valid) dirwindow.querySelector('div').innerHTML = `
             <p>Do you want to change your game directory?</p>
             <p>This can be used for installing mods with GDPSes.</p>
             <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" accept=".app"/>Find Directory</label>
-            <p style="font-size: 70%;" class="muted">Current directory: ${storage.GDDIR}</p>
+            <p style="font-size: 70%;" class="muted">Current directory: ${localStorage.GDDIR}</p>
         `
         else {
             dirwindow.querySelector('div').innerHTML = `
@@ -115,13 +115,13 @@ const setup = () => new Promise(async (resolve, reject) => {
 
     printconsole('Starting Setup')
 
-    if (!fs.existsSync(path.join(storage.FRAMEWORKS, 'Geode.dylib'))) {
+    if (!fs.existsSync(path.join(dir, 'Geode.dylib'))) {
         printconsole('Geode Loader Not Detected')
         printconsole('Installing Geode...')
         printconsole('    Downloading .dylib')
         await new Promise(resolve => {
             https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056322658297462784/Geode.dylib', async res => {
-                const fp = fs.createWriteStream(path.join(storage.FRAMEWORKS, '/Geode.dylib'))
+                const fp = fs.createWriteStream(path.join(dir, 'Frameworks/Geode.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
@@ -144,7 +144,7 @@ const setup = () => new Promise(async (resolve, reject) => {
         printconsole('    Downloading .dylib')
         await new Promise(resolve => {
             https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056322682288865310/GeodeBootstrapper.dylib', async res => {
-                const fp = fs.createWriteStream(path.join(storage.FRAMEWORKS, '/GeodeBootstrapper.dylib'))
+                const fp = fs.createWriteStream(path.join(dir, 'Frameworks/GeodeBootstrapper.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
@@ -161,11 +161,11 @@ const setup = () => new Promise(async (resolve, reject) => {
         printconsole('Geode Bootstrapper Detected')
     }
 
-    if (fs.existsSync(path.join(storage.FRAMEWORKS, 'libfmod.dylib'))) {
+    if (fs.existsSync(path.join(dir, 'libfmod.dylib'))) {
         printconsole('libfmod Detected')
         printconsole('Replacing libfmod...')
         await new Promise(resolve => {
-            fs.rename(path.join(storage.FRAMEWORKS, '/libfmod.dylib'), path.join(storage.FRAMEWORKS, '/libfmod.dylib.original'), (error) => {
+            fs.rename(path.join(dir, 'Frameworks/libfmod.dylib'), path.join(dir, 'Frameworks/libfmod.dylib.original'), (error) => {
                 if (error) {
                     printconsole('    Unable to Replace libfmod: ' + err, 'error')
                 } else {
@@ -178,7 +178,7 @@ const setup = () => new Promise(async (resolve, reject) => {
         printconsole('    Downloading New libfmod')
         await new Promise(resolve => {
             https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056358949835780207/libfmod.dylib', async res => {
-                const fp = fs.createWriteStream(path.join(storage.FRAMEWORKS, '/libfmod.dylib'))
+                const fp = fs.createWriteStream(path.join(dir, 'Frameworks/libfmod.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
@@ -197,7 +197,7 @@ const setup = () => new Promise(async (resolve, reject) => {
         printconsole('    Downloading .dylib')
         await new Promise(resolve => {
             https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056358949835780207/libfmod.dylib', async res => {
-                const fp = fs.createWriteStream(path.join(storage.FRAMEWORKS, '/libfmod.dylib'))
+                const fp = fs.createWriteStream(path.join(dir, 'Frameworks/libfmod.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
@@ -215,17 +215,16 @@ const setup = () => new Promise(async (resolve, reject) => {
     
     document.querySelector('#topsection button').style.display = 'flex'
     document.querySelector('#topsection button').addEventListener('click', async () => {
-        storage.NEWUSER = false
+
         document.querySelector('#modal').style.opacity = '0'
         location.reload()
     })
 
-    storage.NEWUSER = false
     printconsole('Please Close This Popup to Continue')
-    storage.NEWUSER = false
+
 
     resolve()
-    storage.NEWUSER = false
+
 })
 
 module.exports = setup
