@@ -1,5 +1,15 @@
 module.exports = async (pg, ex = {}) => {
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+    const urlExist = (url) => {
+        return new Promise((resolve) => {
+            const { host, pathname } = new URL(url)
+            const req = https.request({ method: 'HEAD', host, path: pathname }, (r) =>
+                resolve(/4\d\d/.test(`${r.statusCode}`) === false),
+            )
+            req.on('error', () => resolve(false))
+            req.end()
+        })
+    }
 
     document.querySelector('body > main > *').style.opacity = '0'
     await wait(200)
@@ -25,7 +35,7 @@ module.exports = async (pg, ex = {}) => {
         return rtf.format(Math.round(elapsed/units[u]), u)
     }
 
-    await new Promise(resolve => {
+    await new Promise(async resolve => {
         switch (pg) {
             case 'library':
 
@@ -224,52 +234,53 @@ module.exports = async (pg, ex = {}) => {
             case 'store':
                 
                 document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
-                    <div><h1>Mod Library</h1><p>Edit, Toggle, Manage and  your Installed Mods.</p></div>
-                    <div id="store"></div>
+                    <div><h1>Store</h1><p>Find, Check Out, and Download Dozens of Mods.</p></div>
+                    <div id="store"><loading id="load" style="position: absolute; top: calc(50% + 15px); left: calc(50% + 117px);"></loading></div>
                 </div>`
 
-                https.get({
-                    hostname: 'api.github.com',
-                    path: '/repos/GD-JumpStart/Mods/contents',
-                    headers: {
-                        'User-Agent': navigator.userAgent + `User ${storage.UUID}`
+                document.getElementById('store').innerHTML = '<h2>Popular</h2>'
+                let popular = document.getElementById('store').appendChild(document.createElement('div'))
+                
+                let p = 0
+                for (let i = 0; i < store.length; i++) {
+                    let moddata = store[i]
+                    if (moddata.downloads > 0 && p < 15) {
+                        popular.innerHTML += `<button onclick="location.href = 'https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/${moddata.name}.dll'" style="
+                            background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
+                        ">
+                            <div>
+                                <img src="${moddata.icon ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
+                                <span>
+                                    <h4>${moddata.name}</h4>
+                                    <p>${moddata.author} - v${moddata.version}</p>
+                                </span>
+                            </div>
+                        </button>`
+                        p++
                     }
-                }, res => {
-                    let _data = ''
-                    res.on('data', (d) => _data += d)
-                    res.on('end', async () => {
-                        _data = JSON.parse(_data)
-                        document.getElementById('store').innerHTML += '<h2>Popular</h2>'
-                        let div = document.getElementById('store').appendChild(document.createElement('div'))
-                        for (let i = 0; i < _data.length; i++) {
-                            let data = _data[i]
-                            https.get({
-                                hostname: 'raw.githubusercontent.com',
-                                path: `/GD-JumpStart/Mods/main/${data.name}/mod.json`,
-                                headers: {
-                                    'User-Agent': navigator.userAgent + `User ${storage.UUID}`
-                                }
-                            }, res => {
-                                let moddata = ''
-                                res.on('data', (d) => moddata += d)
-                                res.on('end', async () => {
-                                    moddata = JSON.parse(moddata)
-                                    div.innerHTML += `<button href="https://github.com/GD-JumpStart/Mods/raw/main/${data.name}/${data.name}.dll" style="
-                                        background-image: url('https://github.com/GD-JumpStart/Mods/raw/main/${data.name}/header.png')
-                                    ">
-                                        <div>
-                                            <img src="https://github.com/GD-JumpStart/Mods/raw/main/${data.name}/icon.png">
-                                            <span>
-                                                <h4>${data.name}</h4>
-                                                <p>${moddata.author} - v${moddata.version}</p>
-                                            </span>
-                                        </div>
-                                    </button>`
-                                })
-                            })
-                        }
-                    })
-                })
+                }
+
+                document.getElementById('store').innerHTML += '<h2>Editor</h2>'
+                let editor = document.getElementById('store').appendChild(document.createElement('div'))
+
+                for (let i = 0; i < store.length; i++) {
+                    let moddata = store[i]
+                    if (moddata.tags.indexOf('Editor') != -1) {
+                        editor.innerHTML += `<button onclick="location.href = 'https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/${moddata.name}.dll'" style="
+                            background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
+                        ">
+                            <div>
+                                <img src="${moddata.icon ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
+                                <span>
+                                    <h4>${moddata.name}</h4>
+                                    <p>${moddata.author} - v${moddata.version}</p>
+                                </span>
+                            </div>
+                        </button>`
+                    }
+                }
+
+                resolve()
                 
                 break
             default:

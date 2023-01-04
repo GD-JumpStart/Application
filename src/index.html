@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="./index.css" />
 </head>
 
-<!-- <script>
+<script>
   window.onunhandledrejection = e => {
     location.href = './crash.html?c=' + encodeURIComponent('Unhandled Rejection: No further info available.')
   }
@@ -15,7 +15,7 @@
     if (m == 'Uncaught EvalError: Possible side-effect in debug-evaluate') return
     location.href = './crash.html?c=' + encodeURIComponent(`${m} :: ${u}@${l}:${c}`)
   }
-</script> -->
+</script>
 
 <body>
   <context></context>
@@ -40,19 +40,19 @@
       <a href="javascript:page('downloads')" data-page="downloads"><span>&#xF29B;</span>Downloads</a>
       <a href="javascript:page('texturePacks')" data-page="texturePacks"><span>&#xF3D8;</span>Texture Packs</a>
       <a href="javascript:page('save')" data-page="save"><span>&#xF412;</span>Save Data</a>
-      <!-- <a href="javascript:page('installations')" data-page="installations"><span>&#xF10A;</span>Installations</a> -->
     </span>
     <span>
       <a href="javascript:page('settings')" data-page="settings"><span>&#xF3E5;</span>Settings</a>
       <a href="javascript:page('changelog')" data-page="changelog"><span>&#xF292;</span>Changelog</a>
+      <a href="javascript:page('installations')" data-page="installations"><span><img src="../assets/installations.png" width="24" height="24"></span>Installations</a>
     </span>
-    <div><a href="steam://rungameid/322170"><span>&#xF4F5;</span>Play</a></div>
   </aside>
 
   <main>
     <center style="height: 100%; flex-direction: column;">
       <img id="icon" src="../assets/icon.svg" style="transform: translateY(60px); opacity: 0; transition: 400ms ease-out" height="100" width="100" alt="JumpStartLogo">
       <loading id="load" style="position: absolute; bottom: calc(50% - 110px); opacity: 0"></loading>
+      <span style="font-size: 70%; opacity: 0; transition: 200ms ease-out; position: absolute; bottom: calc(50% - 130px);" class="muted" id="verboseloading">Loading</span>
       <h2 style="margin: 10px 0px; transform: translateY(10px); opacity: 0; transition: 200ms ease-out">Welcome Back!</h2>
       <p style="transform: translateY(10px); opacity: 0; transition: 200ms ease-out">To continue, navigate the sidebar to the left.</p>
       <p style="font-size: 70%; transform: translateY(10px); opacity: 0; transition: 200ms ease-out" class="muted">Not sure where to go? <a href="javascript:page('store')">Visit the Store</a>, <a href="javascript:page('library')">Manage your Mods</a>, or <a href="javascript:page('settings')">Change some Settings</a>.</p>
@@ -74,6 +74,7 @@
   try { fs.mkdirSync(path.join(process.env.LOCALAPPDATA, 'JumpStart')) } catch {}
   try { storage = JSON.parse(atob(fs.readFileSync(path.join(process.env.LOCALAPPDATA, 'JumpStart/storage.json'))).toString()) } catch { storage = {} }
   const mods = {}
+  let store
 
   document.getElementById('min').addEventListener('click', () => {
       ipcRenderer.send('min')
@@ -96,19 +97,26 @@
     await wait(300)
 
     await new Promise(async resolve => {
+      const vbl = document.getElementById('verboseloading')
       document.getElementById('load').style.opacity = '1'
+      if (storage.VBL || storage.VBL == undefined) vbl.style.opacity = '1'
       await wait(300)
+      vbl.innerText = 'Checking Current Data'
       if (storage.UUID == undefined) storage.UUID = crypto.randomUUID()
       if (storage.NEWUSER == undefined || storage.NEWUSER != false) {
         document.querySelector('center h2').innerText = 'Welcome to JumpStart'
         document.querySelectorAll('center p')[0].innerHTML = 'To get started, <a href="javascript:setup()">run a quick setup</a>.'
         document.querySelectorAll('center p')[1].innerText = 'The setup will make sure your game has a modloader, and will integrate with your current one if available'
         document.querySelectorAll('aside *').forEach(e => { e.style.display = 'none' })
+        vbl.innerText = 'Setting Default Values'
         storage.MHV7 = false
         storage.GDDIR = 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\Geometry Dash\\'
         storage.GDEXE = 'GeometryDash.exe'
         storage.UPDATE = 0
-      } else {
+        storage.VBL = false
+      } else {        
+        vbl.innerText = 'Reading Mods'
+
         let _m = await fs.readdirSync(path.join(storage.GDDIR, 'quickldr'))
         await _m.forEach(async f => {
           if (f.endsWith('.dll')) {
@@ -118,10 +126,38 @@
             } catch { }
           }
         })
-        if (!/[\\\/]steam[\\\/]steamapps[\\\/]common[\\\/]geometry dash[\\\/]/i.test(storage.GDDIR)) {
-          document.querySelector('aside div a').href = `javascript:exec('${storage.GDEXE}', { cwd: '${storage.GDDIR.replace(/\\/g, '/')}' })`
-        }
+
+        vbl.innerText = 'Done'
+
+        vbl.innerText = 'Verifying Mod State'
+
         await fs.readFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), { encoding: 'utf8' }).split('\r\n').forEach(m => { if (mods[m.slice(0, -4)] != undefined) mods[m.slice(0, -4)].enabled = true })
+
+        vbl.innerText = 'Done'
+
+        vbl.innerText = 'Loading Store Content'
+
+        await new Promise(resolve => {
+          https.get({
+            hostname: 'api.gdjumpstart.org',
+            path: '/store',
+            headers: {
+              'User-Agent': navigator.userAgent + `User ${storage.UUID}`
+            }
+          }, res => {
+            let data = ''
+            res.on('data', (d) => data += d)
+            res.on('end', async () => {
+              store = JSON.parse(data).sort((a, b) => b.downloads - a.downloads)
+
+              resolve()
+            })
+          })
+        })
+
+        vbl.innerText = 'Done'
+
+        vbl.innerText = 'Checking for Updates'
         
         https.get({
           hostname: 'api.github.com',
@@ -134,15 +170,24 @@
           res.on('data', (d) => _data += d)
           res.on('end', async () => {
             let data = null
+            vbl.innerText = 'Finding Valid Release'
             for (let i = 0; i < JSON.parse(_data).length; i++) {
               if (JSON.parse(_data)[i].tag_name.endsWith('-Win')) {
                 data = JSON.parse(_data)[i]
                 break
               }
             }
-            if (data == null) return
+            if (data == null) return vbl.innerText = 'Release Not Found'
+
+            vbl.innerText = 'Done'
+
+            vbl.innerText = 'Comparing Versions'
+
             data.tag_name = data.tag_name.slice(0, -4)
             if (package.version < data.tag_name.substr(1) && storage.UPDATE < Date.now()) {
+
+              vbl.innerText = 'Client Out-of-Date'
+
               let update = await modal()
               update.innerHTML = `<div style="
                 width: 100%;
@@ -189,8 +234,11 @@
 
           })
         })
+
+        vbl.innerText = 'Done'
       }
       document.getElementById('load').style.opacity = '0'
+      vbl.style.opacity = '0'
       await wait(300)
       resolve()
     })
@@ -227,9 +275,6 @@
       e[i].style.transform = 'translateY(0px)'
       e[i].style.opacity = '1'
     }
-    await wait(100)
-    document.querySelector('aside div').style.transform = 'translateY(0px)'
-    document.querySelector('aside div').style.opacity = '1'
   })
 </script>
 
