@@ -188,7 +188,7 @@ module.exports = async (pg, ex = {}) => {
                     document.querySelector(`#library div[data-modid="${Object.keys(mods).indexOf(mod.name.slice(0, -4))}"]`).scrollIntoView()
                 })
 
-                document.querySelectorAll('#options button')[1].addEventListener('click', e => {                    
+                document.querySelectorAll('#options button')[1].addEventListener('click', e => {
                     if (e.target.innerText.startsWith('Enable')) {
                         Object.keys(mods).forEach(m => mods[m].enabled = true)
                         document.querySelectorAll(`#library div span img`).forEach(e => e.style.filter = '')
@@ -277,6 +277,42 @@ module.exports = async (pg, ex = {}) => {
                                 </span>
                             </div>
                         </button>`
+                    }
+                }
+
+                resolve()
+                
+                break
+            case 'settings':
+
+                document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
+                    <div><h1>Settings</h1><p>Edit your Entire Experience In-App.</p></div>
+                    <div id="settings"></div>
+                </div>`
+
+                let noneditables = [
+                    'GDDIR',
+                    'GDEXE',
+                    'MHV7',
+                    'NEWUSER',
+                    'UPDATE',
+                    'UUID',
+                ]
+
+                let readablenames = {
+                    VBL: 'Verbose Logging'
+                }
+
+                let _storage = Object.keys(storage).sort()
+
+                for (let i = 0; i < _storage.length; i++) {
+                    let opt = _storage[i]
+                    if (noneditables.indexOf(opt) == -1) {
+                        document.getElementById('settings').innerHTML += `<label><input type="checkbox" data-opt="${opt}">${readablenames[opt]}</label>`
+                        document.querySelector(`#settings input[data-opt="${opt}"]`).checked = storage[opt]
+                        document.querySelector(`#settings input[data-opt="${opt}"]`).onchange = e => {
+                            storage[opt] = e.target.checked
+                        }
                     }
                 }
 
