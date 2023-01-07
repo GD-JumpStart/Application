@@ -1,15 +1,6 @@
 module.exports = async (pg, ex = {}) => {
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
-    const urlExist = (url) => {
-        return new Promise((resolve) => {
-            const { host, pathname } = new URL(url)
-            const req = https.request({ method: 'HEAD', host, path: pathname }, (r) =>
-                resolve(/4\d\d/.test(`${r.statusCode}`) === false),
-            )
-            req.on('error', () => resolve(false))
-            req.end()
-        })
-    }
+    if (document.querySelector(`aside span a[data-page="${pg}"]`).style.background == 'rgb(52, 58, 64)') return
 
     document.querySelector('body > main > *').style.opacity = '0'
     await wait(200)
@@ -244,11 +235,11 @@ module.exports = async (pg, ex = {}) => {
                 let p = 0
                 for (let i = 0; i < store.length; i++) {
                     let moddata = store[i]
-                    if (moddata.downloads > 0 && p < 15) {
+                    // if (moddata.downloads > 0 && p < 15) {
                         popular.innerHTML += `<button onclick="location.href = 'https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/${moddata.name}.dll'" style="
                             background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
                         ">
-                            <div>
+                            <div style="${storage.SFX ? '' : 'backdrop-filter: none; background: #0009'}">
                                 <img src="${moddata.icon ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
                                 <span>
                                     <h4>${moddata.name}</h4>
@@ -257,7 +248,7 @@ module.exports = async (pg, ex = {}) => {
                             </div>
                         </button>`
                         p++
-                    }
+                    // }
                 }
 
                 document.getElementById('store').innerHTML += '<h2>Editor</h2>'
@@ -269,7 +260,7 @@ module.exports = async (pg, ex = {}) => {
                         editor.innerHTML += `<button onclick="location.href = 'https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/${moddata.name}.dll'" style="
                             background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
                         ">
-                            <div>
+                            <div style="${storage.SFX ? '' : 'backdrop-filter: none; background: #0009'}">
                                 <img src="${moddata.icon ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
                                 <span>
                                     <h4>${moddata.name}</h4>
@@ -290,29 +281,32 @@ module.exports = async (pg, ex = {}) => {
                     <div id="settings"></div>
                 </div>`
 
-                let noneditables = [
-                    'GDDIR',
-                    'GDEXE',
-                    'MHV7',
-                    'NEWUSER',
-                    'UPDATE',
-                    'UUID',
-                ]
+                let container = document.getElementById('settings')
 
-                let readablenames = {
-                    VBL: 'Verbose Logging'
-                }
+                container.innerHTML += `<h2>Graphics</h2>`
 
-                let _storage = Object.keys(storage).sort()
+                container.innerHTML += `<div class="option">
+                    <label><input type="checkbox" data-opt="SFX"><div class="check"><div></div></div>Special Effects</label>
+                    <div class="desc">Toggles visual effects that may strain the GPU. Only for use on low-end hardware.</div>
+                </div>`
 
-                for (let i = 0; i < _storage.length; i++) {
-                    let opt = _storage[i]
-                    if (noneditables.indexOf(opt) == -1) {
-                        document.getElementById('settings').innerHTML += `<label><input type="checkbox" data-opt="${opt}">${readablenames[opt]}</label>`
-                        document.querySelector(`#settings input[data-opt="${opt}"]`).checked = storage[opt]
-                        document.querySelector(`#settings input[data-opt="${opt}"]`).onchange = e => {
-                            storage[opt] = e.target.checked
-                        }
+                container.innerHTML += `<h2>Utility</h2>`
+
+                container.innerHTML += `<div class="option">
+                    <label><input type="checkbox" data-opt="VBL" ><div class="check"><div></div></div>Verbose Loading</label>
+                    <div class="desc">Toggles loading messages to let you know what's happening.</div>
+                </div>`
+
+                let settings = document.querySelectorAll(`#settings input`)
+                
+                for (let i = 0; i < settings.length; i++) {
+                    let opt = settings[i].dataset.opt
+                    let slider = document.querySelector(`#settings input[data-opt="${opt}"]`).nextSibling
+                    document.querySelector(`#settings input[data-opt="${opt}"]`).checked = storage[opt]
+                    if (storage[opt]) slider.classList.add('checked')
+                    document.querySelector(`#settings input[data-opt="${opt}"]`).onchange = e => {
+                        storage[opt] = e.target.checked
+                        slider.classList.toggle('checked')
                     }
                 }
 

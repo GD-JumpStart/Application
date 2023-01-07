@@ -20,7 +20,7 @@
 <body>
   <context></context>
   <div id="modalcontainer"><div id="modal"><span id="topsection"><h1></h1><button>&#xF62A;</button></span><main></main></div></div>
-  <div id="dragover" style="display: none; opacity: 0;"></div>
+  <div id="tooltip"></div>
   <nav>
     <span>
       <img src="../assets/icon.png" width="25" height="25" style="margin-right: 10px;" alt="JumpStart Logo"/>
@@ -114,6 +114,7 @@
         storage.GDEXE = 'GeometryDash.exe'
         storage.UPDATE = 0
         storage.VBL = false
+        storage.SFX = false
       } else {        
         vbl.innerText = 'Reading Mods'
 
