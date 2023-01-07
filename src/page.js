@@ -132,7 +132,7 @@ const page = async (pg) => {
                     `
 
                     confirm.querySelectorAll('button')[0].addEventListener('click', async () => {
-                        await fs.unlinkSync(path.join(gdfiles, `Contents/geode/mods/${Object.keys(mods)[i]}.geode`))
+                        await fs.unlinkSync(path.join(storage.GDDIR, `Contents/geode/mods/${Object.keys(mods)[i]}.geode`))
                         //let list = ''
                         //await _mods.forEach(m => { if (mods[m].enabled && m != _mods[i]) list += m + '.dll\r\n' })
                         //await fs.writeFileSync(path.join(localStorage.GDDIR, '/quickldr/settings.txt'), list)
@@ -182,9 +182,10 @@ const page = async (pg) => {
                     `
 
                     confirm.querySelectorAll('button')[1].addEventListener('click', async () => {
+                        let _mods3 = Object.keys(mods)
                         let renameName = modName.value;
-                        await fs.renameSync(path.join(gdfiles, `Contents/geode/mods/${mods[Object.keys(mods)[i]]}.geode`), path.join(gdfiles, `Contents/geode/mods/${renameName}.geode`))
-                        document.querySelector(`#library span[title="${mods[Object.keys(mods)[i]]}"]`).innerHTML = `<span title="${renameName}">${renameName}</span>`
+                        await fs.renameSync(path.join(storage.GDDIR, `Contents/geode/mods/${_mods3[i]}.geode`), path.join(storage.GDDIR, `Contents/geode/mods/${renameName}.geode`))
+                        document.querySelector(`#library span[title="${_mods3[i]}"]`).innerHTML = `<span title="${renameName}">${renameName}</span>`
                         document.querySelector('#modal').style.opacity = '0'
                         document.querySelector('#modalcontainer').style.opacity = '0'
                         await wait(200)
@@ -280,7 +281,6 @@ const page = async (pg) => {
             <div><h1>Mod Store</h1><p>Install and View Mods instantly.</p></div>
             <div id="store"></div>
         </div>`
-
         https.get({
             hostname: 'api.github.com',
             path: '/repos/geode-sdk/mods/contents/index',
@@ -465,7 +465,17 @@ const page = async (pg) => {
                     context.style.display = 'none'
                     installs[_mods3[i]].enabled = true
                     document.querySelector(`#library div[data-modid="${i}"] span img`).style.filter = ''
-                    gdfiles = installs[_mods3[i]].path
+                    let data = { 
+                        UUID: storage.UUID,
+                        MHV7: storage.MHV7, 
+                        GDDIR: installs[_mods3[i]].path,
+                        JUMPSTART: storage.JUMPSTART,
+                        UPDATE: storage.UPDATE,
+                        NEWUSER: storage.NEWUSER
+                    };
+                    let newdata = JSON.stringify(data);
+                    fs.writeFileSync(path.join('/Users/', username, 'Library/Application Support/', 'JumpStart/storage.json'), newdata);
+                    //gdfiles = installs[_mods3[i]].path
                     installs[_mods3[i]].enabled
                 })
 
@@ -628,7 +638,7 @@ const page = async (pg) => {
                     document.querySelector(`#library div[data-modid="${i}"] span img`).style.filter = ''
                     const username = os.userInfo ().username;
                     var enabledPack = new AdmZip(path.join('/Users/', username, `/Library/Application Support/JumpStart/JumpStart-Resources/${_mods4[i]}.zip`));
-                    enabledPack.extractAllTo(path.join(gdfiles, 'Contents/Resources/'), true);
+                    enabledPack.extractAllTo(path.join(storage.GDDIR, 'Contents/Resources/'), true);
                     packs[_mods4[i]].enabled
                 })
 
@@ -738,7 +748,10 @@ const page = async (pg) => {
         resolve()
         break
         case 'saveData':
-            document.querySelector('body > main').innerHTML = `<div style="display: flex; padding: 14px; flex-wrap: wrap; align-content: flex-start">
+            document.querySelector('body > main').innerHTML = `
+            <div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
+            <div><h1>Save Data</h1><p>Manage, <a id="back">Backup</a>, and Switch Save Files. (Save Files persist across installations)</p></div>
+            <div style="display: flex; padding: 14px; flex-wrap: wrap; align-content: flex-start">
             <div id="library">
                 <div>
                     <span></span>
@@ -748,49 +761,6 @@ const page = async (pg) => {
                 </div>
             </div>
         </div>`
-/*
-        const confirm = await modal({ title: 'Options' })
-                confirm.innerHTML = `<div style="
-                            width: 100%;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            flex-direction: column;
-                        "></div><div style="
-                            padding: 10px;
-                            height: 43px;
-                            border-top: 1px #343a40 solid;
-                            margin-top: 10px;
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center
-                        ">
-                            <button id="continue" class="style">Cancel</button><button id="continue" class="style">Backup</button>
-                        </div>`
-                confirm.querySelector('div').innerHTML = `
-                        <p>Are you sure you would like to backup your save file?</p>
-                        <p><strong>This may take a couple seconds due to the file sizes.</strong></p>
-                `
-                confirm.querySelectorAll('button')[1].addEventListener('click', async () => {
-                    var seconds = new Date().getTime() / 1000;
-                    const username = os.userInfo ().username;
-                    const zip = new AdmZip();
-                    const outputFile = path.join('/Users/', username, `/Library/Application Support/GeometryDash/JUMPSTART_BACKUP_${seconds}.zip`);
-                    document.querySelector('#modal').style.opacity = '0'
-                    document.querySelector('#modalcontainer').style.opacity = '0'
-                    await wait(200)
-                    document.querySelector('#modalcontainer').style.display = 'none'
-                    zip.addLocalFolder(path.join('/Users/', username, '/Library/Application Support/GeometryDash/'));
-                    zip.writeZip(outputFile);
-                })
-    
-                confirm.querySelectorAll('button')[0].addEventListener('click', async () => {
-                    document.querySelector('#modal').style.opacity = '0'
-                    document.querySelector('#modalcontainer').style.opacity = '0'
-                    await wait(200)
-                    document.querySelector('#modalcontainer').style.display = 'none'
-                })
-                */
 
         let _mods2 = Object.keys(saves)
         for (let i = 0; i < _mods2.length; i++) {
@@ -831,14 +801,12 @@ const page = async (pg) => {
 
                 disable.addEventListener('click', () => {
                     context.style.display = 'none'
-                    if (saves[_mods2[i]].enabled == false) {
-                        saves[_mods2[i]].enabled = true
-                        document.querySelector(`#library div[data-modid="${i}"] span img`).style.filter = ''
-                    } else {
-                        saves[_mods2[i]].enabled = false
-                        document.querySelector(`#library div[data-modid="${i}"] span img`).style.filter = 'grayscale(1)'
-                    }
-
+                    saves[_mods2[i]].enabled = true
+                    document.querySelector(`#library div[data-modid="${i}"] span img`).style.filter = ''
+                    const username = os.userInfo ().username;
+                    //${_mods4[i]}
+                    var enabledPack = new AdmZip(path.join('/Users/', username, `/Library/Application Support/GeometryDash/JUMPSTART_BACKUP.zip`));
+                    enabledPack.extractAllTo(path.join('/Users/', username, `/Library/Application Support/GeometryDash/`), true);
                     saves[_mods2[i]].enabled
                 })
 
@@ -944,8 +912,88 @@ const page = async (pg) => {
             if (document.getElementsByTagName('context')[0].contains(e.target)) return;
             document.getElementsByTagName('context')[0].style.display = 'none'
         })
+
+        document.getElementById('back').addEventListener('click', async () => {
+            const confirm = await modal({ title: 'Backup' })
+                confirm.innerHTML = `<div style="
+                            width: 100%;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            flex-direction: column;
+                        "></div><div style="
+                            padding: 10px;
+                            height: 43px;
+                            border-top: 1px #343a40 solid;
+                            margin-top: 10px;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center
+                        ">
+                            <button id="continue" class="style">Cancel</button><button id="continue" class="style blue">Backup</button>
+                        </div>`
+                confirm.querySelector('div').innerHTML = `
+                        <p>Are you sure you would like to backup your save file?</p>
+                        <p><strong>This may take a couple seconds due to the file sizes.</strong></p>
+                `
+                confirm.querySelectorAll('button')[1].addEventListener('click', async () => {
+                    var seconds = new Date().getTime() / 1000;
+                    const username = os.userInfo ().username;
+                    const zip = new AdmZip();
+                    const outputFile = path.join('/Users/', username, `/Library/Application Support/GeometryDash/JUMPSTART_BACKUP.zip`);
+                    document.querySelector('#modal').style.opacity = '0'
+                    document.querySelector('#modalcontainer').style.opacity = '0'
+                    await wait(200)
+                    document.querySelector('#modalcontainer').style.display = 'none'
+                    zip.addLocalFolder(path.join('/Users/', username, '/Library/Application Support/GeometryDash/'));
+                    zip.writeZip(outputFile);
+                })
+    
+                confirm.querySelectorAll('button')[0].addEventListener('click', async () => {
+                    document.querySelector('#modal').style.opacity = '0'
+                    document.querySelector('#modalcontainer').style.opacity = '0'
+                    await wait(200)
+                    document.querySelector('#modalcontainer').style.display = 'none'
+                })
+        })
         
         resolve()
+        break
+        case 'settings':
+
+        document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
+            <div><h1>Settings</h1><p>Edit your Entire Experience In-App.</p></div>
+            <div id="settings"></div>
+        </div>`
+
+        let noneditables = [
+            'GDDIR',
+            'GDEXE',
+            'MHV7',
+            'NEWUSER',
+            'UPDATE',
+            'UUID',
+        ]
+
+        let readablenames = {
+            VBL: 'Verbose Logging'
+        }
+
+        let _storage = Object.keys(storage).sort()
+
+        for (let i = 0; i < _storage.length; i++) {
+            let opt = _storage[i]
+            if (noneditables.indexOf(opt) == -1) {
+                document.getElementById('settings').innerHTML += `<label><input type="checkbox" data-opt="${opt}">${readablenames[opt]}</label>`
+                document.querySelector(`#settings input[data-opt="${opt}"]`).checked = storage[opt]
+                document.querySelector(`#settings input[data-opt="${opt}"]`).onchange = e => {
+                    storage[opt] = e.target.checked
+                }
+            }
+        }
+
+        resolve()
+
         break
         default:
 

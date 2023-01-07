@@ -6,9 +6,9 @@ const decompress = require('decompress')
 const crypto = require('crypto')
 const os = require ('os');
 const username = os.userInfo ().username;
-let dir = path.join('/Users/', username, '/Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/Contents')
 
 const setup = () => new Promise(async (resolve, reject) => {
+    let dir = storage.GDDIR
     await new Promise(async resolve => {
         const valid = await new Promise(async resolve => {
             try {
@@ -40,7 +40,7 @@ const setup = () => new Promise(async (resolve, reject) => {
             <p>Do you want to change your game directory?</p>
             <p>This can be used for installing mods with GDPSes.</p>
             <label style="margin: 10px 0px;" class="button"><input type="file" style="display: none" accept=".app"/>Find Directory</label>
-            <p style="font-size: 70%;" class="muted">Current directory: ${localStorage.GDDIR}</p>
+            <p style="font-size: 70%;" class="muted">Current directory: ${storage.GDDIR}</p>
         `
         else {
             dirwindow.querySelector('div').innerHTML = `
@@ -115,13 +115,13 @@ const setup = () => new Promise(async (resolve, reject) => {
 
     printconsole('Starting Setup')
 
-    if (!fs.existsSync(path.join(dir, 'Geode.dylib'))) {
+    if (!fs.existsSync(path.join(dir, 'Contents/Frameworks/Geode.dylib'))) {
         printconsole('Geode Loader Not Detected')
         printconsole('Installing Geode...')
         printconsole('    Downloading .dylib')
         await new Promise(resolve => {
             https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056322658297462784/Geode.dylib', async res => {
-                const fp = fs.createWriteStream(path.join(dir, 'Frameworks/Geode.dylib'))
+                const fp = fs.createWriteStream(path.join(dir, 'Contents/Frameworks/Geode.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
@@ -138,13 +138,13 @@ const setup = () => new Promise(async (resolve, reject) => {
         printconsole('Geode Loader Detected')
     }
 
-    if (!fs.existsSync(path.join(storage.FRAMEWORKS, 'GeodeBootstrapper.dylib'))) {
+    if (!fs.existsSync(path.join(storage.GDDIR, 'Contents/Frameworks/GeodeBootstrapper.dylib'))) {
         printconsole('Geode Bootstrapper Not Detected')
         printconsole('Installing Geode Bootstrapper...')
         printconsole('    Downloading .dylib')
         await new Promise(resolve => {
             https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056322682288865310/GeodeBootstrapper.dylib', async res => {
-                const fp = fs.createWriteStream(path.join(dir, 'Frameworks/GeodeBootstrapper.dylib'))
+                const fp = fs.createWriteStream(path.join(dir, 'Contents/Frameworks/GeodeBootstrapper.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
@@ -161,11 +161,11 @@ const setup = () => new Promise(async (resolve, reject) => {
         printconsole('Geode Bootstrapper Detected')
     }
 
-    if (fs.existsSync(path.join(dir, 'libfmod.dylib'))) {
+    if (fs.existsSync(path.join(dir, 'Contents/Frameworks/libfmod.dylib'))) {
         printconsole('libfmod Detected')
         printconsole('Replacing libfmod...')
         await new Promise(resolve => {
-            fs.rename(path.join(dir, 'Frameworks/libfmod.dylib'), path.join(dir, 'Frameworks/libfmod.dylib.original'), (error) => {
+            fs.rename(path.join(dir, 'Contents/Frameworks/libfmod.dylib'), path.join(dir, 'Contents/Frameworks/libfmod.dylib.original'), (error) => {
                 if (error) {
                     printconsole('    Unable to Replace libfmod: ' + err, 'error')
                 } else {
@@ -178,7 +178,7 @@ const setup = () => new Promise(async (resolve, reject) => {
         printconsole('    Downloading New libfmod')
         await new Promise(resolve => {
             https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056358949835780207/libfmod.dylib', async res => {
-                const fp = fs.createWriteStream(path.join(dir, 'Frameworks/libfmod.dylib'))
+                const fp = fs.createWriteStream(path.join(dir, 'Contents/Frameworks/libfmod.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
@@ -197,7 +197,7 @@ const setup = () => new Promise(async (resolve, reject) => {
         printconsole('    Downloading .dylib')
         await new Promise(resolve => {
             https.get('https://cdn.discordapp.com/attachments/993154713304449124/1056358949835780207/libfmod.dylib', async res => {
-                const fp = fs.createWriteStream(path.join(dir, 'Frameworks/libfmod.dylib'))
+                const fp = fs.createWriteStream(path.join(dir, 'Contents/Frameworks/libfmod.dylib'))
                 res.pipe(fp)
                 fp.on('finish', () => {
                     fp.close()
@@ -222,6 +222,17 @@ const setup = () => new Promise(async (resolve, reject) => {
 
     printconsole('Please Close This Popup to Continue')
 
+    let data = { 
+        UUID: storage.UUID,
+        MHV7: storage.MHV7, 
+        GDDIR: storage.GDDIR,
+        JUMPSTART: storage.JUMPSTART,
+        UPDATE: storage.UPDATE,
+        NEWUSER: 'false'
+    };
+    storage.NEWUSER = 'false'
+    let newdata = JSON.stringify(data);
+    fs.writeFileSync(path.join('/Users/', username, 'Library/Application Support/', 'JumpStart/storage.json'), newdata);
 
     resolve()
 

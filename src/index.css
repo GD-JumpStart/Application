@@ -405,7 +405,9 @@ input[type=installAdd] {
   justify-content: center;
   align-items: flex-start;
 }
-
+#settings {
+  margin: 10px 0px;
+}
 #options {
   display: flex;
   padding: 10px;
