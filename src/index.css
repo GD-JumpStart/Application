@@ -13,7 +13,7 @@
   font-display: swap;
 }
 body {
-  font-family: "bootstrap-icons", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "bootstrap-icons";
   margin: 0px;
   background: #212529;
   color: #fff;
@@ -24,18 +24,7 @@ body {
   overflow: hidden;
   height: 100vh;
 }
-input {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  background-color: #343a40;
-  color: white;
-  font-family: "bootstrap-icons", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
+
 nav {
   height: 30px;
   position: absolute;
@@ -46,9 +35,6 @@ nav {
   align-items: center;
   justify-content: space-between;
   -webkit-app-region: drag;
-}
-#lmao {
-  transform: scale(0.5) transform(0,0);
 }
 nav span {
   display: flex;
@@ -96,7 +82,7 @@ nav #controls div#close:active {
 aside {
   padding: 0px;
   height: calc(100vh - 44px);
-  min-width: 200px;
+  min-width: 0px;
   max-width: 0px;
   display: flex;
   flex-direction: column;
@@ -104,8 +90,7 @@ aside {
   align-items: flex-start;
 }
 aside span {
-  width: 200px;
-  margin-bottom: 68px;
+  width: 100%;
 }
 aside span a {
   color: #fff;
@@ -114,6 +99,7 @@ aside span a {
   text-decoration: none;
   padding: 7px;
   font-size: 18px;
+  opacity: 0;
   transform: translateY(10px);
   transition: 200ms ease-out;
 }
@@ -128,41 +114,9 @@ aside span a span {
   font-size: 24px;
   margin-right: 7px;
   width: 24px;
-  height: 20px;
-  margin-bottom: 0px;
-}
-aside div {
-  position: absolute;
-  bottom: 20px;
-  left: 0px;
-  width: 200px;
-  padding: 0px;
-  border: 1px solid #495057;
-  transform: translateY(10px);
-  transition: 200ms ease-out;
-}
-aside div a {
-  color: #fff;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  padding: 7px 10px;
-  font-size: 18px;
-  transition: 200ms ease-out;
-}
-aside div a:hover {
-  text-decoration: none;
-  background: #343a40;
-}
-aside div a span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  margin-right: 7px;
-  width: 24px;
   height: 24px;
   margin-bottom: 0px;
+  transform: translateY(2px);
 }
 
 main {
@@ -172,6 +126,8 @@ main {
   height: calc(100vh - 33px);
   width: 100vw;
   background: #121313;
+  border-top: 3px solid #121313;
+  scroll-behavior: smooth;
 }
 main center {
   display: flex;
@@ -212,12 +168,6 @@ loading {
   0% {
     transform: rotate(0deg);
   }
-  25% {
-    transform: rotate(30deg);
-  }
-  75% {
-    transform: rotate(330deg);
-  }
   100% {
     transform: rotate(360deg);
   }
@@ -226,12 +176,6 @@ loading {
 @keyframes spinner {
   0% {
     transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(30deg);
-  }
-  75% {
-    transform: rotate(330deg);
   }
   100% {
     transform: rotate(360deg);
@@ -272,7 +216,7 @@ loading {
   border: none;
   background: transparent;
   color: rgba(255, 255, 255, 0.5333333333);
-  font-family: "bootstrap-icons", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "bootstrap-icons";
   font-size: 24px;
   cursor: pointer;
   padding: 8px;
@@ -290,7 +234,12 @@ loading {
   all: revert;
 }
 
+*:not(code, pre) {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "bootstrap-icons";
+}
+
 *::-webkit-scrollbar {
+  height: 12px;
   width: 12px;
   border-radius: 6px;
 }
@@ -314,16 +263,7 @@ loading {
   border-radius: 4px;
   transition: 0s ease-in-out;
 }
-input[type=installAdd] {
-  width: 100%;
-  background-color: #343a40;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+
 .card {
   background: #6c757d;
   width: 155px;
@@ -352,18 +292,17 @@ input[type=installAdd] {
 }
 
 #store h2 {
-  margin: 10px 0px;
+  margin: 10px;
 }
 #store div {
-  display: inline-block;
+  display: flex;
   overflow-x: auto;
-  column-count: 3;
-  column-gap: 0;
+  -ms-scroll-snap-type: x mandatory;
+      scroll-snap-type: x mandatory;
+  scroll-padding: 10px;
 }
 #store div button {
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-bottom: 20px;
+  margin: 10px;
   width: 325px;
   height: 200px;
   padding: 0px;
@@ -376,6 +315,8 @@ input[type=installAdd] {
   border-radius: 10px;
   display: flex;
   align-items: flex-end;
+  flex-shrink: 0;
+  scroll-snap-align: start;
 }
 #store div button:hover {
   transform: scale(1.05) translateY(-1px);
@@ -387,10 +328,12 @@ input[type=installAdd] {
   padding: 10px;
   background: rgba(0, 0, 0, 0.4);
   color: #fff;
-  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+          backdrop-filter: blur(7px);
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   display: flex;
+  box-shadow: inset 0px 0px 20px 0px rgba(0, 0, 0, 0.5333333333);
 }
 #store div button div img {
   height: 70px;
@@ -405,9 +348,7 @@ input[type=installAdd] {
   justify-content: center;
   align-items: flex-start;
 }
-#settings {
-  margin: 10px 0px;
-}
+
 #options {
   display: flex;
   padding: 10px;
@@ -445,17 +386,7 @@ input[type=installAdd] {
 #options button:hover, #options label:hover {
   background: rgba(33, 37, 41, 0.4980392157);
 }
-select {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  color: white;
-  background-color: #343a40;
-}
+
 #library {
   width: 100%;
 }
@@ -471,7 +402,12 @@ select {
   padding: 5px;
   background: #212529;
   border-radius: 10px;
-  margin-bottom: 10px;
+  margin: 10px 0px;
+  box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: 300ms cubic-bezier(0.15, 0.8, 0.65, 1);
+  transition-property: transform box-shadow;
+  z-index: 0;
 }
 #library div:not(div:first-child):hover {
   transform: translateY(-3px);
@@ -493,15 +429,18 @@ select {
   flex-shrink: 1;
 }
 #library span:nth-child(3) {
-  width: 60px;
+  width: 70px;
+  text-align: center;
 }
 #library span:nth-child(4) {
-  width: 110px;
+  width: 120px;
+  text-align: right;
 }
-#library span:nth-child(5) {
-  width: 27px;
-  margin-right: 10px;
+
+#settings {
+  margin: 10px 0px;
 }
+
 context {
   position: absolute;
   display: flex;
@@ -545,19 +484,6 @@ button.style, label.button {
   padding: 7px 13px;
   font-size: 13px;
   min-width: 60px;
-}
-button.styleMiddle, label.buttonMiddle {
-  border: 1px solid #495057;
-  border-radius: 8px;
-  background: #343a40;
-  color: #fff;
-  transition: background 200ms ease-in-out;
-  cursor: pointer;
-  padding: 7px 13px;
-  font-size: 13px;
-  min-width: 60px;
-  position: absolute;
-  transform: translateY(350px) scale(150%);
 }
 button.style.blue, label.button.blue {
   background: #0d6efd;

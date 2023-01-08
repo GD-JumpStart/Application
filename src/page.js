@@ -278,57 +278,73 @@ const page = async (pg) => {
         break
         case 'store':
             document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
-            <div><h1>Mod Store</h1><p>Install and View Mods instantly.</p></div>
-            <div id="store"></div>
-        </div>`
-        https.get({
-            hostname: 'api.github.com',
-            path: '/repos/geode-sdk/mods/contents/index',
-            headers: {
-                'User-Agent': navigator.userAgent + `User ${storage.UUID}`
-            }
-        }, res => {
-            let _data = ''
-            res.on('data', (d) => _data += d)
-            res.on('end', async () => {
-                _data = JSON.parse(_data)
-                document.getElementById('store').innerHTML += '<h2>Popular</h2>'
-                let div = document.getElementById('store').appendChild(document.createElement('div'))
-                div.id = "storeContainer";
-                let i = 0
-                while (i < _data.length) {
-                    let data = _data[i]
-                    https.get({
-                        hostname: 'raw.githubusercontent.com',
-                        path: `/geode-sdk/mods/main/index/${data.name}/mod.json`,
-                        headers: {
-                            'User-Agent': navigator.userAgent + `User ${storage.UUID}`
-                        }
-                    }, res => {
-                        let moddata = ''
-                        res.on('data', (d) => moddata += d)
-                        res.on('end', async () => {
-                            moddata = JSON.parse(moddata)
-                            div.innerHTML += `<button data-modid="${i}"
-                            style="
-                                background-image: url('../assets/background.jpg');
-                            ">
-                                <div>
-                                    <img src="https://github.com/geode-sdk/mods/raw/main/index/${data.name}/logo.png">
-                                    <span>
-                                        <h3>${moddata.name}</h3>
-                                        <p>by ${moddata.developer} - ${moddata.version}</p>
-                                    </span>
-                                </div>
-                            </button>
-                            `
-                        })
-                    })
-                    i++
+                    <div><h1>Store</h1><p>Find, Check Out, and Download Dozens of Mods.</p></div>
+                    <div id="store"><loading id="load" style="position: absolute; top: calc(50% + 15px); left: calc(50% + 117px);"></loading></div>
+                </div>`
+
+                document.getElementById('store').innerHTML = '<h2>Popular</h2>'
+                let popular = document.getElementById('store').appendChild(document.createElement('div'))
+                
+                let p = 0
+                for (let i = 0; i < store.length; i++) {
+                    let moddata = store[i]
+                    if (p < 15) {
+                        popular.innerHTML += `<button data-modid="${i}" style="
+                            background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
+                        ">
+                            <div>
+                                <img src="https://raw.githubusercontent.com/geode-sdk/mods/main/index/${moddata.filename}/logo.png">
+                                <span>
+                                    <h4>${moddata.name}</h4>
+                                    <p>${moddata.author} - v${moddata.version}</p>
+                                </span>
+                            </div>
+                        </button>`
+                        p++
+                    }
                 }
-            })
-        })
-        resolve();
+
+                document.getElementById('store').innerHTML += '<h2>Editor</h2>'
+                let editor = document.getElementById('store').appendChild(document.createElement('div'))
+
+                for (let i = 0; i < store.length; i++) {
+                    let moddata = store[i]
+                    if (moddata.tags.indexOf('Editor') != -1) {
+                        editor.innerHTML += `<button onclick="location.href = 'https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/${moddata.name}.dll'" style="
+                            background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
+                        ">
+                            <div>
+                                <img src="https://raw.githubusercontent.com/geode-sdk/mods/main/index/${moddata.filename}/logo.png">
+                                <span>
+                                    <h4>${moddata.name}</h4>
+                                    <p>${moddata.author} - v${moddata.version}</p>
+                                </span>
+                            </div>
+                        </button>`
+                    }
+                }
+
+                document.getElementById('store').innerHTML += '<h2>Enhancements</h2>'
+                let enhance = document.getElementById('store').appendChild(document.createElement('div'))
+
+                for (let i = 0; i < store.length; i++) {
+                    let moddata = store[i]
+                    if (moddata.tags.indexOf('Enhancements') != -1) {
+                        enhance.innerHTML += `<button onclick="location.href = 'https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/${moddata.name}.dll'" style="
+                            background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
+                        ">
+                            <div>
+                                <img src="https://raw.githubusercontent.com/geode-sdk/mods/main/index/${moddata.filename}/logo.png">
+                                <span>
+                                    <h4>${moddata.name}</h4>
+                                    <p>${moddata.author} - v${moddata.version}</p>
+                                </span>
+                            </div>
+                        </button>`
+                    }
+                }
+
+                resolve()
         break
         case 'installations':
             let _mods3 = Object.keys(installs)
@@ -340,8 +356,7 @@ const page = async (pg) => {
                 <div>
                     <span></span>
                     <span>Installation Name</span>
-                    <span>Type of Game</span>
-                    <span>Path to Installation</span>
+                    <span></span>
                 </div>
             </div>
         </div>`
@@ -407,11 +422,30 @@ const page = async (pg) => {
             document.getElementById('library').innerHTML += `<div data-modid="${i}">
                 <span><img src="../assets/defaultmod.png" alt="${mod}'s icon" style="border-radius: 11px; ${installs[mod].enabled ? '' : 'filter: grayscale(1)'}" height="60" width="60"></span>
                 <span title="${mod}">${mod}</span>
-                <span title="${installs[mod].type}">${installs[mod].type}</span>
-                <span title="${installs[mod].path}">${installs[mod].path}</span>
+                <span title="${installs[mod].type}"><button data-modid="launch${i}" class="style">Launch</button></span>
             </div>`
+
         }
         for (let i = 0; i < _mods3.length; i++) {
+            document.querySelector(`#library button[data-modid="launch${i}"]`).addEventListener('click', (e) => {
+                const username = os.userInfo ().username;
+                if (installs[_mods3[i]].type != 'legalGame') {
+                    exec(`open '${installs[_mods3[i]].path}'`, (error, stdout, stderr) => {
+                        if (error) {
+                            console.log(`error: ${error.message}`);
+                            return;
+                        }
+                        if (stderr) {
+                            console.log(`stderr: ${stderr}`);
+                            return;
+                        }
+                        console.log(`stdout: ${stdout}`);
+                    });
+                } else {
+                    location.href = 'steam://rungameid/322170'
+                }
+                installs[_mods3[i]].enabled
+            })
             document.querySelector(`#library div[data-modid="${i}"]`).addEventListener('contextmenu', (e) => {
                 let context = document.getElementsByTagName('context')[0]
                 context.innerHTML = ''
