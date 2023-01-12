@@ -1,7 +1,7 @@
 {
   "name": "jumpstart",
   "productName": "JumpStart",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Mod Manager and Installer for Geometry Dash",
   "main": "src/index.js",
   "scripts": {

@@ -74,7 +74,7 @@
   try { fs.mkdirSync(path.join(process.env.LOCALAPPDATA, 'JumpStart')) } catch {}
   try { storage = JSON.parse(atob(fs.readFileSync(path.join(process.env.LOCALAPPDATA, 'JumpStart/storage.json'))).toString()) } catch { storage = {} }
   const mods = {}
-  let store
+  let store = []
 
   document.getElementById('min').addEventListener('click', () => {
       ipcRenderer.send('min')
@@ -114,7 +114,7 @@
         storage.GDEXE = 'GeometryDash.exe'
         storage.UPDATE = 0
         storage.VBL = false
-        storage.SFX = false
+        storage.SFX = true
       } else {        
         vbl.innerText = 'Reading Mods'
 
@@ -160,37 +160,42 @@
 
         vbl.innerText = 'Checking for Updates'
         
-        https.get({
-          hostname: 'api.github.com',
-          path: '/repos/GD-JumpStart/Application/releases',
-          headers: {
-            'User-Agent': navigator.userAgent
-          }
-        }, res => {
-          let _data = ''
-          res.on('data', (d) => _data += d)
-          res.on('end', async () => {
-            let data = null
-            vbl.innerText = 'Finding Valid Release'
-            for (let i = 0; i < JSON.parse(_data).length; i++) {
-              if (JSON.parse(_data)[i].tag_name.endsWith('-Win')) {
-                data = JSON.parse(_data)[i]
-                break
-              }
+        await new Promise(async resolve => {
+          https.get({
+            hostname: 'api.github.com',
+            path: '/repos/GD-JumpStart/Application/releases',
+            headers: {
+              'User-Agent': navigator.userAgent
             }
-            if (data == null) return vbl.innerText = 'Release Not Found'
+          }, res => {
+            let _data = ''
+            res.on('data', (d) => _data += d)
+            res.on('end', async () => {
+              let data = null
+              vbl.innerText = 'Finding Valid Release'
+              for (let i = 0; i < JSON.parse(_data).length; i++) {
+                if (JSON.parse(_data)[i].tag_name.endsWith('-Win')) {
+                  data = JSON.parse(_data)[i]
+                  break
+                }
+              }
+              if (data == null) {
+                vbl.innerText = 'Release Not Found'
+                resolve()
+                return 
+              }
 
-            vbl.innerText = 'Done'
+              vbl.innerText = 'Done'
 
-            vbl.innerText = 'Comparing Versions'
+              vbl.innerText = 'Comparing Versions'
 
-            data.tag_name = data.tag_name.slice(0, -4)
-            if (package.version < data.tag_name.substr(1) && storage.UPDATE < Date.now()) {
+              data.tag_name = data.tag_name.slice(0, -4)
+              if (package.version < data.tag_name.substr(1) && storage.UPDATE < Date.now()) {
 
-              vbl.innerText = 'Client Out-of-Date'
+                vbl.innerText = 'Client Out-of-Date'
 
-              let update = await modal()
-              update.innerHTML = `<div style="
+                let update = await modal()
+                update.innerHTML = `<div style="
                 width: 100%;
                 display: flex;
                 justify-content: center;
@@ -208,31 +213,34 @@
                 <button id="continue" class="style blue">Update Now</button><button id="continue" class="style">Remind me Later</button>
               </div>`
 
-              update.querySelector('div').innerHTML = `
+                update.querySelector('div').innerHTML = `
                 <p>Your client is out of date.</p>
                 <p>Would you like to download the newest available version?</p>
                 <p style="font-size: 80%; margin-top: 10px" class="muted">v${package.version} → ${data.tag_name}</p>
               `
 
-              storage.UPDATE = 6e5
+                storage.UPDATE = 6e5
 
-              update.querySelectorAll('button')[0].addEventListener('click', async () => {
-                storage.UPDATE = 0
-                shell.openExternal(data.html_url)
-                document.querySelector('#modal').style.opacity = '0'
-                document.querySelector('#modalcontainer').style.opacity = '0'
-                await wait(200)
-                document.querySelector('#modalcontainer').style.display = 'none'
-              })
+                update.querySelectorAll('button')[0].addEventListener('click', async () => {
+                  storage.UPDATE = 0
+                  shell.openExternal(data.html_url)
+                  document.querySelector('#modal').style.opacity = '0'
+                  document.querySelector('#modalcontainer').style.opacity = '0'
+                  await wait(200)
+                  document.querySelector('#modalcontainer').style.display = 'none'
+                })
 
-              update.querySelectorAll('button')[1].addEventListener('click', async() => {
-                document.querySelector('#modal').style.opacity = '0'
-                document.querySelector('#modalcontainer').style.opacity = '0'
-                await wait(200)
-                document.querySelector('#modalcontainer').style.display = 'none'
-              })
-            }
+                update.querySelectorAll('button')[1].addEventListener('click', async () => {
+                  document.querySelector('#modal').style.opacity = '0'
+                  document.querySelector('#modalcontainer').style.opacity = '0'
+                  await wait(200)
+                  document.querySelector('#modalcontainer').style.display = 'none'
+                })
+              }
 
+              resolve()
+
+            })
           })
         })
 

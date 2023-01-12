@@ -1,6 +1,6 @@
 module.exports = async (pg, ex = {}) => {
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
-    if (document.querySelector(`aside span a[data-page="${pg}"]`).style.background == 'rgb(52, 58, 64)') return
+    if (document.querySelector(`aside span a[data-page="${pg}"]`).style.background == 'rgb(52, 58, 64)' && !ex.bypasscheck) return
 
     document.querySelector('body > main > *').style.opacity = '0'
     await wait(200)
@@ -171,7 +171,7 @@ module.exports = async (pg, ex = {}) => {
 
                         fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), mod.name, { flag: 'a' })
                         mods[mod.name.slice(0, -4)] = { enabled: true, time: mod.lastModified }
-                        page('library')
+                        page('library', { bypasscheck: true })
 
                         await wait(400)
                     }
