@@ -24,7 +24,29 @@ body {
   overflow: hidden;
   height: 100vh;
 }
-
+select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 0px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: white;
+  background-color: #343a40;
+}
+input {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #343a40;
+  color: white;
+  font-family: "bootstrap-icons", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
 nav {
   height: 30px;
   position: absolute;
@@ -440,7 +462,68 @@ loading {
 #settings {
   margin: 10px 0px;
 }
-
+#settings h2 {
+  margin: 5px;
+}
+#settings .option {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+#settings .option label {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  cursor: pointer;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+#settings .option label input[type=checkbox] {
+  display: none;
+}
+#settings .option label .check {
+  width: 40px;
+  height: 20px;
+  margin: 5px;
+  margin-right: 15px;
+  background: #343a40;
+  border-radius: 20px;
+  display: flex;
+  padding: 3px;
+  transition: 200ms ease-out;
+}
+#settings .option label .check.checked {
+  background: #198754;
+}
+#settings .option label .check.checked div {
+  transform: translateX(20px);
+  background: #22b973;
+}
+#settings .option label .check div {
+  width: 20px;
+  height: 20px;
+  margin: 0px;
+  background: #6c757d;
+  border-radius: 15px;
+  transition: 200ms ease-out;
+}
+#settings .option .desc {
+  margin: 10px 5px;
+  text-align: right;
+  font-size: 78%;
+  color: #adb5bd;
+}
+input[type=text] {
+  width: 100%;
+  background-color: #343a40;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 context {
   position: absolute;
   display: flex;

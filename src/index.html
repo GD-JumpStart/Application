@@ -125,10 +125,10 @@
           UUID: crypto.randomUUID(),
           MHV7: false, 
           GDDIR: path.join('/Users/', username, 'Library/Application Support/Steam/steamapps/common/Geometry Dash/Geometry Dash.app/'),
-          JUMPSTART: path.join('/Users/', username, 'Library/Application Support/JumpStart/'),
           UPDATE: 0,
           NEWUSER: 'false',
-          VBL: false
+          VBL: false,
+          SFX: true
         };
       let newdata = JSON.stringify(data);
       fs.writeFileSync(path.join('/Users/', username, 'Library/Application Support/', 'JumpStart/storage.json'), newdata);

@@ -292,7 +292,7 @@ const page = async (pg) => {
                         popular.innerHTML += `<button data-modid="${i}" style="
                             background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
                         ">
-                            <div>
+                            <div style="${storage.SFX ? '' : 'backdrop-filter: none; background: #0009'}">
                                 <img src="https://raw.githubusercontent.com/geode-sdk/mods/main/index/${moddata.filename}/logo.png">
                                 <span>
                                     <h4>${moddata.name}</h4>
@@ -472,8 +472,7 @@ const page = async (pg) => {
                 }
                 context.style.display = 'flex'
 
-                disable.addEventListener('click', () => {
-                    const username = os.userInfo ().username;
+                disable.addEventListener('click', async () => {
                     if (installs[_mods3[i]].type != 'legalGame') {
                         exec(`open '${installs[_mods3[i]].path}'`, (error, stdout, stderr) => {
                             if (error) {
@@ -996,38 +995,110 @@ const page = async (pg) => {
         case 'settings':
 
         document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
-            <div><h1>Settings</h1><p>Edit your Entire Experience In-App.</p></div>
-            <div id="settings"></div>
-        </div>`
+                    <div><h1>Settings</h1><p>Edit your Entire Experience In-App.</p></div>
+                    <div id="settings"></div>
+                </div>`
 
-        let noneditables = [
-            'GDDIR',
-            'GDEXE',
-            'MHV7',
-            'NEWUSER',
-            'UPDATE',
-            'UUID',
-        ]
+                let container = document.getElementById('settings')
 
-        let readablenames = {
-            VBL: 'Verbose Logging'
-        }
+                container.innerHTML += `<h2>Graphics</h2>`
 
-        let _storage = Object.keys(storage).sort()
+                container.innerHTML += `<div class="option">
+                    <label><input type="checkbox" data-opt="SFX"><div class="check"><div></div></div>Special Effects</label>
+                    <div class="desc">Toggles visual effects that may strain the GPU. Only for use on low-end hardware.</div>
+                </div>`
 
-        for (let i = 0; i < _storage.length; i++) {
-            let opt = _storage[i]
-            if (noneditables.indexOf(opt) == -1) {
-                document.getElementById('settings').innerHTML += `<label><input type="checkbox" data-opt="${opt}">${readablenames[opt]}</label>`
-                document.querySelector(`#settings input[data-opt="${opt}"]`).checked = storage[opt]
-                document.querySelector(`#settings input[data-opt="${opt}"]`).onchange = e => {
-                    storage[opt] = e.target.checked
+                container.innerHTML += `<h2>Utility</h2>`
+
+                container.innerHTML += `<div class="option">
+                    <label><input type="checkbox" data-opt="VBL" ><div class="check"><div></div></div>Verbose Loading</label>
+                    <div class="desc">Toggles loading messages to let you know what's happening.</div>
+                </div>`
+
+                let settings = document.querySelectorAll(`#settings input`)
+                
+                for (let i = 0; i < settings.length; i++) {
+                    let opt = settings[i].dataset.opt
+                    let slider = document.querySelector(`#settings input[data-opt="${opt}"]`).nextSibling
+                    document.querySelector(`#settings input[data-opt="${opt}"]`).checked = storage[opt]
+                    if (storage[opt]) slider.classList.add('checked')
+                    document.querySelector(`#settings input[data-opt="${opt}"]`).onchange = e => {
+                        storage[opt] = e.target.checked
+                        slider.classList.toggle('checked')
+                    }
                 }
-            }
-        }
 
         resolve()
 
+        break
+        case 'changelog':
+
+        new Promise(async resolve => {
+            const log = await modal({ title: 'Changelog' })
+                        log.innerHTML = `<div style="
+                            width: 100%;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            flex-direction: column;
+                        "></div><div style="
+                            padding: 10px;
+                            height: 43px;
+                            border-top: 1px #343a40 solid;
+                            margin-top: 10px;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center
+                        ">
+                            <button id="continue" class="style">Cancel</button><button id="continue" class="style">Backup</button>
+                        </div>`
+                        let changelog = ''
+                        let fullLog = ''
+                        let str = ''
+                        await new Promise(resolve => {
+                            https.get({
+                                hostname: 'api.github.com',
+                                path: '/repos/GD-JumpStart/Application/branches',
+                                headers: {
+                                  'User-Agent': navigator.userAgent + `User ${storage.UUID}`
+                                }
+                              }, res => {
+                                let data = ''
+                                res.on('data', (d) => data += d)
+                                res.on('end', async () => {
+                                  changelog = JSON.parse(data)
+                                  str = changelog[0].commit.url;
+                                  console.log(str)
+                                  for (let n = 0; n < 10; n++) {
+                                    https.get({
+                                        hostname: 'api.github.com',
+                                        path: str.substring(22),
+                                        headers: {
+                                          'User-Agent': navigator.userAgent + `User ${storage.UUID}`
+                                        }
+                                      }, res => {
+                                        let data = ''
+                                        res.on('data', (d) => data += d)
+                                        res.on('end', async () => {
+                                          changelog = JSON.parse(data)
+                                          fullLog += changelog.commit.message + `\n`
+                                          str = changelog.parents.url[0]
+                                            console.log(str)
+                                          console.log(changelog.commit.message)
+                                          resolve()
+                                        })
+                                      })
+                                  }
+                                  resolve()
+                                })
+                            })
+                        })
+                        log.querySelector('div').innerHTML = `
+                            <p>${fullLog}</p>
+                        `
+        })
+
+        resolve()
         break
         default:
 
