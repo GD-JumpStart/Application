@@ -214,16 +214,16 @@ const page = async (pg) => {
         document.querySelector('#options input').addEventListener('change', async e => {
             let mod = e.target.files[0]
             if (!mod.name.endsWith('.geode')) return
-            if (Object.keys(mods).indexOf(mod.name.slice(0, -4)) == -1) {
+            if (Object.keys(mods).indexOf(mod.name.slice(0, -6)) == -1) {
                 let read = fs.createReadStream(mod.path)
-                let write = fs.createWriteStream(path.join(storage.GDDIR, '/quickldr/', mod.name))
+                let write = fs.createWriteStream(path.join(storage.GDDIR, 'Contents/geode/mods', mod.name))
 
                 read.pipe(write)
 
                 try {
                     fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), mod.name, { flag: 'a' })
                 } catch {}
-                mods[mod.name.slice(0, -4)] = { enabled: true, time: mod.lastModified }
+                mods[mod.name.slice(0, -6)] = { enabled: true, time: mod.lastModified }
                 page('library')
 
                 await wait(400)
@@ -264,7 +264,7 @@ const page = async (pg) => {
                 read.pipe(write)
 
                 fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), mod.name, { flag: 'a' })
-                mods[mod.name.slice(0, -4)] = { enabled: true, time: mod.lastModified }
+                mods[mod.name.slice(0, -5)] = { enabled: true, time: mod.lastModified }
             })
 
             if (useful) page('library')
@@ -274,6 +274,54 @@ const page = async (pg) => {
             e.preventDefault()
         }
         
+        resolve()
+        break
+        case 'nongs':
+            document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
+                    <div><h1>Songs</h1><p>Search and Download Songs from Song IDs</p></div>
+                    <div><input type="text" id="SongID" name="Song ID" class="style" required
+                    minlength="2" maxlength="16" size="20"></div>
+                    <button id="searchSongs" class="style">Search</button>
+                    <div id="store"><loading id="load" style="position: absolute; top: calc(50% + 15px); left: calc(50% + 117px);"></loading></div>
+                </div>`
+
+            document.getElementById('store').innerHTML = '<h2>Popular</h2>'
+            let category = document.getElementById('store').appendChild(document.createElement('div'))
+            
+            document.getElementById('searchSongs').addEventListener('click', () => {
+                https.get({
+                    hostname: 'songfilehub.com',
+                    path: `/api/v1/nongs?id=${document.getElementById('SongID').value}`,
+                    headers: {
+                      'User-Agent': navigator.userAgent + `User ${storage.UUID}`
+                    }
+                  }, res => {
+                    let data = ''
+                    res.on('data', (d) => data += d)
+                    res.on('end', async () => {
+                      let list = JSON.parse(data);
+                      category.innerHTML = ``
+                      for (let s = 0; s < list.songs.length; s++) {
+                        let newdata = list.songs[s];
+                        category.innerHTML += `
+                        <button onclick="location.href = '${newdata.downloadUrl}'" style="
+                            background-image: url(${newdata.isMashup ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
+                        ">
+                            <div style="${storage.SFX ? '' : 'backdrop-filter: none; background: #0009'}">
+                                <img src="../assets/music-note-list.svg" style="filter: invert(100%);">
+                                <span>
+                                    <h4>${newdata.songName}</h4>
+                                    <p>${newdata.name} - ${newdata.state}</p>
+                                </span>
+                            </div>
+                        </button>
+                        `
+                      }
+                      
+                      resolve()
+                    })
+                  })
+            })
         resolve()
         break
         case 'store':
@@ -289,7 +337,7 @@ const page = async (pg) => {
                 for (let i = 0; i < store.length; i++) {
                     let moddata = store[i]
                     if (p < 15) {
-                        popular.innerHTML += `<button data-modid="${i}" style="
+                        popular.innerHTML += `<button onclick="location.href = '${moddata.download.url}'" style="
                             background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
                         ">
                             <div style="${storage.SFX ? '' : 'backdrop-filter: none; background: #0009'}">
@@ -310,7 +358,7 @@ const page = async (pg) => {
                 for (let i = 0; i < store.length; i++) {
                     let moddata = store[i]
                     if (moddata.tags.indexOf('Editor') != -1) {
-                        editor.innerHTML += `<button onclick="location.href = 'https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/${moddata.name}.dll'" style="
+                        editor.innerHTML += `<button onclick="location.href = '${moddata.download.url}'" style="
                             background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
                         ">
                             <div>
