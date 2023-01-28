@@ -29,12 +29,11 @@
       <a href="javascript:page('library')" data-page="library"><span>&#xF2CC;</span>Mod Library</a>
       <a href="javascript:page('downloads')" data-page="downloads"><span>&#xF29B;</span>Downloads</a>
       <a href="javascript:page('texturePacks')" data-page="texturePacks"><span>&#xF3D8;</span>Texture Packs</a>
-      <a href="javascript:page('save')" data-page="save"><span>&#xF412;</span>Save Data</a>
     </span>
     <span>
       <a href="javascript:page('settings')" data-page="settings"><span>&#xF3E5;</span>Settings</a>
-      <a href="javascript:page('changelog')" data-page="changelog"><span>&#xF292;</span>Changelog</a>
-      <a href="javascript:page('installations')" data-page="installations"><span><img src="../assets/installations.png" width="24" height="24"></span>Installations</a>
+      <a href="javascript:page('account')" data-page="account"><span>&#xF4D7;</span>My Account</a>
+      <a href="javascript:page('installations')" data-page="installations"><span><img class="img" src="../assets/installations.png" width="24" height="24"></span>Installations</a>
     </span>
   </aside>
 
@@ -65,6 +64,7 @@
   try { storage = JSON.parse(atob(fs.readFileSync(path.join(process.env.LOCALAPPDATA, 'JumpStart/storage.json'))).toString()) } catch { storage = {} }
   const mods = {}
   let store = []
+  let userdata = null
 
   document.getElementById('min').addEventListener('click', () => {
       ipcRenderer.send('min')
@@ -73,6 +73,24 @@
   document.getElementById('max').addEventListener('click', () => {
       ipcRenderer.send('max')
   })
+
+  ipcRenderer.on('open-url', (e, url) => {
+    let u = new URL(url)
+    if (document.querySelector(`aside span a[data-page="account"]`).style.background == 'rgb(52, 58, 64)' && u.pathname == '//discord/') {
+      fetch('https://storage.kontroll.dev/jumpstart/auth', {
+        method: 'POST',
+        headers: {
+            'Code': u.searchParams.get('code'),
+            'Redirect-URI': 'https://gdjumpstart.org/discord'
+        }
+      }).then(res => { return res.json() }).then(res => {
+        if (res.error) return     
+        storage.id = res.id
+        storage.auth = res.auth
+        location.reload()
+      })
+    }
+  })        
 
   window.onunload = async e => {
     await fs.writeFileSync(path.join(process.env.LOCALAPPDATA, 'JumpStart/storage.json'), btoa(JSON.stringify(storage)))
@@ -98,7 +116,7 @@
         document.querySelectorAll('center p')[0].innerHTML = 'To get started, <a href="javascript:setup()">run a quick setup</a>.'
         document.querySelectorAll('center p')[1].innerText = 'The setup will make sure your game has a modloader, and will integrate with your current one if available'
         document.querySelectorAll('aside *').forEach(e => { e.style.display = 'none' })
-        vbl.innerText = 'Setting Default Values'
+        vbl.innerText = 'Setting Default Settings'
         storage.MHV7 = false
         storage.GDDIR = 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\Geometry Dash\\'
         storage.GDEXE = 'GeometryDash.exe'
@@ -147,6 +165,27 @@
         })
 
         vbl.innerText = 'Done'
+
+        if (storage.id != undefined && storage.auth != undefined) {
+          vbl.innerText = 'Getting User Data'
+
+          await new Promise(resolve => {
+            fetch('https://storage.kontroll.dev/jumpstart/user', {
+              method: 'GET',
+              headers: {
+                  'ID': storage.id,
+                  'Auth': storage.auth
+              }
+            }).then(res => { return res.json() }).then(res => {
+              if (res.error) return resolve()
+              userdata = res
+              document.querySelectorAll('aside span a')[5].innerHTML = `<span><img class="img" src="https://cdn.discordapp.com/avatars/${res.id}/${res.avatar}.png?size=64" style="border-radius: 3px; background: #121313" width="24" height="24"></span> My Account`
+              resolve()
+            })
+          })
+
+          vbl.innerText = 'Done'
+        }
 
         vbl.innerText = 'Checking for Updates'
         

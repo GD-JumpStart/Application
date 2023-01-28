@@ -313,6 +313,20 @@ module.exports = async (pg, ex = {}) => {
                 resolve()
                 
                 break
+            case 'account':
+
+                document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
+                    <div><h1>My Account</h1></div>
+                    <div id="account" style="min-height: calc(100vh - 96px); display: flex; justify-content: center; align-items: center"></div>
+                </div>`
+
+                let account = document.getElementById('account')
+
+                if (storage.id == undefined && storage.auth == undefined) return account.innerHTML += '<button class="style" style="display: flex;" onclick="shell.openExternal(\'https://discord.com/api/oauth2/authorize?client_id=1064678297327382588&redirect_uri=https://discord.com/api/oauth2/authorize?client_id=1064678297327382588&redirect_uri=https%3A%2F%2Fgdjumpstart.org%2Fdiscord&response_type=code&scope=identify&response_type=code&scope=identify\')"><font style="font-size: 17px; height: 17px; width: 17px; display: block; margin-right: 4px;">&#xF300;</font> Log In with Discord</button>'
+
+                account.innerHTML += `<img src="https://cdn.discordapp.com/avatars/${userdata.id}/${userdata.avatar}.png">`
+
+                break
             default:
 
                 document.querySelector('body > main').innerHTML = '<center></center>'

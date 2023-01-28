@@ -130,6 +130,10 @@ aside {
                 height: 24px;
                 margin-bottom: 0px;
                 transform: translateY(2px);
+
+                .img {
+                    transform: translateY(0px);
+                }
             }
         }
     }
