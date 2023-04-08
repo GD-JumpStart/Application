@@ -10,6 +10,7 @@
   - [ ] Download and rate endpoints
   - [ ] Newest version endpoint
   - [ ] Stripe integration
+  - [ ] Documentation
 - [ ] Client
   - [ ] Auto-update
     - [ ] Update channels
