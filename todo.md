@@ -15,4 +15,4 @@
   - [ ] Auto-update
     - [ ] Update channels
     - [ ] Diffs only
-  - [ ] Rewrite without electron?
+  - [ ] Rewrite with Tauri
