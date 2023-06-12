@@ -5,7 +5,7 @@ Only use this guide if the client won't run setup properly.
 You'll need the client open for this.
 1. Press `Ctrl + Shift + I`
 2. Select the `Console` tab
-3. Type `storage.GDDIR = "{Your Geometry Dash Directory (e.g. C:/Program Files (x86)/Steam/steamapps/common/Geometry Dash)}"` (Make sure you replace all instances of "\" with "/")
+3. Type `storage.GDDIR = "{Your Geometry Dash Directory (e.g. C:/Program Files (x86)/Steam/steamapps/common/Geometry Dash)}"` (Make sure you replace all instances of "\\" with "/")
 4. Type `storage.GDEXE = "{Your Geometry Dash Executable (e.g. GeometryDash.exe)}"` (Make sure you replace all instances of "\\" with "/")
 
 ## Installing
