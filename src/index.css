@@ -333,28 +333,28 @@ loading {
   justify-content: center;
   align-items: flex-start;
 }
-#store div button .main .middle .top {
+#store div button .top {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
   height: 30px;
 }
-#store div button .main .middle .top p {
+#store div button .top p {
   color: #adb5bd;
 }
-#store div button .main .middle .top .divider {
+#store div button .top .divider {
   width: 1px;
   margin: 0px 10px;
   height: 100%;
   background: #adb5bd;
 }
-#store div button .main .middle .mid {
+#store div button .mid {
   flex-grow: 1;
   margin: 15px 0px;
   color: #dee2e6;
 }
-#store div button .main .middle .bottom {
+#store div button .bottom {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -363,17 +363,17 @@ loading {
   color: #adb5bd;
   font-size: 15px;
 }
-#store div button .main .middle .bottom p {
+#store div button .bottom p {
   margin-right: 10px;
 }
-#store div button .main .middle .bottom p span {
+#store div button .bottom p span {
   font-size: 14px;
   margin-right: 5px;
   position: relative;
   top: 2px;
   display: inline-block;
 }
-#store div button .main .end {
+#store div .end {
   width: 300px;
   display: flex;
   justify-content: space-between;
@@ -381,23 +381,23 @@ loading {
   flex-direction: column;
   margin: 20px;
 }
-#store div button .main .end .tags {
+#store div .end .tags {
   display: flex;
   flex-direction: row;
 }
-#store div button .main .end .tags span {
+#store div .end .tags span {
   width: 30px;
   height: 30px;
   margin: 0px 5px;
   position: relative;
 }
-#store div button .main .end .tags span img {
+#store div .end .tags span img {
   width: 30px;
   height: 30px;
   margin: 0px;
   border-radius: 0px;
 }
-#store div button .main .end .tags span p {
+#store div .end .tags span p {
   padding: 5px;
   background: #212529;
   border-radius: 5px;
@@ -408,7 +408,7 @@ loading {
   left: 50%;
   transform: translatex(-50%);
 }
-#store div button .main .end .tags span:hover p {
+#store div .end .tags span:hover p {
   opacity: 1;
 }
 
@@ -430,7 +430,7 @@ loading {
 #modcontainer #modpage {
   display: flex;
   justify-content: flex-start;
-  align-items: stretch;
+  align-items: flex-end;
   flex-direction: column;
   box-shadow: 0px 0px 40px 20px rgba(0, 0, 0, 0.5333333333);
   min-height: 100%;
@@ -439,20 +439,7 @@ loading {
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
 }
-#modcontainer #modpage #header {
-  width: 100%;
-  height: 250px;
-  border-top-left-radius: 14px;
-  border-top-right-radius: 14px;
-  background-position: center;
-  background-size: cover;
-  position: absolute;
-  box-shadow: inset 0px 0px 30px 5px rgba(0, 0, 0, 0.6666666667);
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-}
-#modcontainer #modpage #header #close {
+#modcontainer #modpage #close {
   font-size: xx-large;
   margin: 8px;
   padding: 0px;
@@ -468,10 +455,24 @@ loading {
   border-radius: 16px;
   position: sticky;
   top: -140px;
+  z-index: 2;
 }
-#modcontainer #modpage #header #close:hover {
+#modcontainer #modpage #close:hover {
   color: #fff;
   background: rgba(18, 19, 19, 0.4980392157);
+}
+#modcontainer #modpage #header {
+  width: 100%;
+  height: 250px;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  background-position: center;
+  background-size: cover;
+  position: absolute;
+  box-shadow: inset 0px 0px 30px 5px rgba(0, 0, 0, 0.6666666667);
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
 }
 #modcontainer #modpage #title {
   margin: 10px 40px;
@@ -481,6 +482,7 @@ loading {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #212529;
+  width: calc(100% - 80px);
 }
 #modcontainer #modpage #title #info {
   display: flex;
@@ -551,6 +553,7 @@ loading {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  width: calc(100% - 80px);
 }
 #modcontainer #modpage #content #desc {
   flex-grow: 1;

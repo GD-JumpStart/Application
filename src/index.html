@@ -17,7 +17,6 @@
     </div>
   </div>
   <div id="tooltip"></div>
-
   <div id="modcontainer" style="padding-top: 250px; display: none; opacity: 0;">
     <div id="modpage"></div>
   </div>
@@ -174,9 +173,10 @@
       }
     }
 
-    page.innerHTML = await `<div id="header" style="
+    page.innerHTML = await `<button id="close"><span style="transform: translateY(2px)">&#xF62A;</span></button>
+    <div id="header" style="
       background-image: url('${moddata.header ? `http://173.94.235.129:8050/content/${moddata.name}/header.png` : '../assets/defaultbanner.png'}')
-    "><button id="close"><span style="transform: translateY(2px)">&#xF62A;</span></button></div>
+    "></div>
     <div id="title">
       <span id="info">
         <img src="${moddata.icon ? `http://173.94.235.129:8050/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">

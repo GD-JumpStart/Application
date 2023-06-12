@@ -10,10 +10,7 @@ jobs:
         with:
           node-version: '18.x'
       - name: Get Package Version
-        uses: polyseam/get-version-from-package-json@1.0.0
-        id: package
-        with:
-          path-to-package-json: './package.json'
+        uses: rexdefuror/read-package-json@v1.0.5
       - name: Install Packages
         run: npm install
       - name: Compile Binary
@@ -22,8 +19,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./dist/JumpStart Setup ${{ steps.package.outputs.version }}.exe
+          file: ./dist/JumpStart Setup ${{ env.PACKAGE_VERSION }}.exe
           asset_name: JumpStart_Setup.exe
-          tag: v${{ steps.package.outputs.version }}-Win
+          tag: v${{ env.PACKAGE_VERSION }}-Win
           prerelease: true
           overwrite: true
