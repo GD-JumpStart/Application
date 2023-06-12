@@ -131,24 +131,8 @@ loading {
   border: 3px solid #212529;
   border-top: 3px solid #343a40;
   border-radius: 50%;
-  -webkit-animation: 2s infinite cubic-bezier(0.445, 0.05, 0.55, 0.95) spinner;
-          animation: 2s infinite cubic-bezier(0.445, 0.05, 0.55, 0.95) spinner;
+  animation: 2s infinite cubic-bezier(0.445, 0.05, 0.55, 0.95) spinner;
   transition: opacity 200ms ease-in-out;
-}
-
-@-webkit-keyframes spinner {
-  0% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(30deg);
-  }
-  75% {
-    transform: rotate(330deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 @keyframes spinner {

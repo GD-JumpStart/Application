@@ -12,6 +12,19 @@
   font-style: normal;
   font-display: swap;
 }
+:root {
+  --col-0100: #f8f9fa;
+  --col-0200: #e9ecef;
+  --col-0300: #dee2e6;
+  --col-0400: #ced4da;
+  --col-0500: #adb5bd;
+  --col-0600: #6c757d;
+  --col-0700: #495057;
+  --col-0800: #343a40;
+  --col-0900: #212529;
+  --col-1000: #121313;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "bootstrap-icons";
   margin: 0px;
@@ -45,7 +58,7 @@ nav span {
 nav #controls {
   padding: 0px;
 }
-nav #controls div {
+nav #controls div, nav #controls button {
   z-index: 1;
   background: rgba(0, 0, 0, 0);
   color: rgba(255, 255, 255, 0.5333333333);
@@ -58,23 +71,23 @@ nav #controls div {
   justify-content: center;
   align-items: center;
 }
-nav #controls div:hover {
+nav #controls div:hover, nav #controls button:hover {
   background: rgba(255, 255, 255, 0.0666666667);
   color: rgba(255, 255, 255, 0.6);
 }
-nav #controls div:active {
+nav #controls div:active, nav #controls button:active {
   background: rgba(255, 255, 255, 0.1333333333);
   color: rgba(255, 255, 255, 0.6666666667);
 }
-nav #controls div#close {
+nav #controls div#close, nav #controls button#close {
   transition: 100ms;
 }
-nav #controls div#close:hover {
+nav #controls div#close:hover, nav #controls button#close:hover {
   background: #f33;
   transition: 100ms;
   color: #fff;
 }
-nav #controls div#close:active {
+nav #controls div#close:active, nav #controls button#close:active {
   background: #f33;
   color: #fff;
 }
@@ -118,6 +131,9 @@ aside span a span {
   margin-bottom: 0px;
   transform: translateY(2px);
 }
+aside span a span .img {
+  transform: translateY(-2px);
+}
 
 main {
   border-top-left-radius: 0px;
@@ -159,18 +175,8 @@ loading {
   border: 3px solid #212529;
   border-top: 3px solid #343a40;
   border-radius: 50%;
-  -webkit-animation: 2s infinite cubic-bezier(0.445, 0.05, 0.55, 0.95) spinner;
-          animation: 2s infinite cubic-bezier(0.445, 0.05, 0.55, 0.95) spinner;
+  animation: 2s infinite cubic-bezier(0.445, 0.05, 0.55, 0.95) spinner;
   transition: opacity 200ms ease-in-out;
-}
-
-@-webkit-keyframes spinner {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 @keyframes spinner {
@@ -264,62 +270,301 @@ loading {
   transition: 0s ease-in-out;
 }
 
-#store h2 {
+#store > h2 {
   margin: 10px;
 }
 #store div {
   display: flex;
-  overflow-x: auto;
-  -ms-scroll-snap-type: x mandatory;
-      scroll-snap-type: x mandatory;
-  scroll-padding: 10px;
+  flex-direction: column;
 }
 #store div button {
-  margin: 10px;
-  width: 325px;
-  height: 200px;
+  margin: 10px 5px;
+  width: 100%;
+  height: 150px;
   padding: 0px;
   border: none;
-  transition: 500ms cubic-bezier(0, 0.1, 0.2, 1);
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.4);
-  background-position: center;
-  background-size: cover;
   cursor: pointer;
   border-radius: 10px;
-  display: flex;
-  align-items: flex-end;
   flex-shrink: 0;
-  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+  outline: 3px solid rgba(0, 0, 0, 0);
+  background-color: #212529;
+  background-position: center;
+  background-size: cover;
+  transition: 300ms cubic-bezier(0.15, 0.8, 0.65, 1);
 }
 #store div button:hover {
-  transform: scale(1.05) translateY(-1px);
-  box-shadow: 6px 6px 11px rgba(0, 0, 0, 0.2666666667);
+  transform: translateY(-3px);
+  box-shadow: 9px 9px 9px rgba(0, 0, 0, 0.4);
+  outline: 3px solid #212529;
 }
-#store div button div {
+#store div button:hover .main.sfx {
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
+}
+#store div button .main {
   width: 100%;
-  height: 70px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.4);
+  height: 150px;
+  background: rgba(18, 19, 19, 0.6666666667);
+  background: linear-gradient(90deg, rgba(18, 19, 19, 0.6666666667), rgba(18, 19, 19, 0.9333333333) 80%);
   color: #fff;
-  -webkit-backdrop-filter: blur(7px);
-          backdrop-filter: blur(7px);
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
+  border-radius: 10px;
   display: flex;
-  box-shadow: inset 0px 0px 20px 0px rgba(0, 0, 0, 0.5333333333);
+  flex-direction: row;
 }
-#store div button div img {
-  height: 70px;
-  width: 70px;
-  border-radius: 14px;
+#store div button .main.sfx {
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
 }
-#store div button div span {
-  margin-left: 10px;
+#store div button .main img {
+  height: 110px;
+  width: 110px;
+  border-radius: 20%;
+  margin: 20px;
+}
+#store div button .main .middle {
+  margin: 15px 0px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+}
+#store div button .main .middle .top {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  height: 30px;
+}
+#store div button .main .middle .top p {
+  color: #adb5bd;
+}
+#store div button .main .middle .top .divider {
+  width: 1px;
+  margin: 0px 10px;
+  height: 100%;
+  background: #adb5bd;
+}
+#store div button .main .middle .mid {
+  flex-grow: 1;
+  margin: 15px 0px;
+  color: #dee2e6;
+}
+#store div button .main .middle .bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  height: 30px;
+  color: #adb5bd;
+  font-size: 15px;
+}
+#store div button .main .middle .bottom p {
+  margin-right: 10px;
+}
+#store div button .main .middle .bottom p span {
+  font-size: 14px;
+  margin-right: 5px;
+  position: relative;
+  top: 2px;
+  display: inline-block;
+}
+#store div button .main .end {
+  width: 300px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-direction: column;
+  margin: 20px;
+}
+#store div button .main .end .tags {
+  display: flex;
+  flex-direction: row;
+}
+#store div button .main .end .tags span {
+  width: 30px;
+  height: 30px;
+  margin: 0px 5px;
+  position: relative;
+}
+#store div button .main .end .tags span img {
+  width: 30px;
+  height: 30px;
+  margin: 0px;
+  border-radius: 0px;
+}
+#store div button .main .end .tags span p {
+  padding: 5px;
+  background: #212529;
+  border-radius: 5px;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  bottom: 35px;
+  left: 50%;
+  transform: translatex(-50%);
+}
+#store div button .main .end .tags span:hover p {
+  opacity: 1;
+}
+
+#modcontainer {
+  padding-top: 150px;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  top: 32px;
+  left: 234px;
+  transition: 500ms ease-out;
+  z-index: 2;
+  overflow-y: auto;
+  border-top-left-radius: 14px;
+  -webkit-backdrop-filter: blur(4px) grayscale(1);
+          backdrop-filter: blur(4px) grayscale(1);
+  background: rgba(0, 0, 0, 0.5333333333);
+}
+#modcontainer #modpage {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex-direction: column;
+  box-shadow: 0px 0px 40px 20px rgba(0, 0, 0, 0.5333333333);
+  min-height: 100%;
+  width: 100%;
+  background: #121313;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+}
+#modcontainer #modpage #header {
+  width: 100%;
+  height: 250px;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  background-position: center;
+  background-size: cover;
+  position: absolute;
+  box-shadow: inset 0px 0px 30px 5px rgba(0, 0, 0, 0.6666666667);
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+#modcontainer #modpage #header #close {
+  font-size: xx-large;
+  margin: 8px;
+  padding: 0px;
+  background: rgba(18, 19, 19, 0.2470588235);
+  border: none;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.7411764706);
+  border-radius: 16px;
+  position: sticky;
+  top: -140px;
+}
+#modcontainer #modpage #header #close:hover {
+  color: #fff;
+  background: rgba(18, 19, 19, 0.4980392157);
+}
+#modcontainer #modpage #title {
+  margin: 10px 40px;
+  margin-top: 260px;
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #212529;
+}
+#modcontainer #modpage #title #info {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+#modcontainer #modpage #title #info img {
+  width: 100px;
+  height: 100px;
+  border-radius: 20%;
+  margin-right: 20px;
+}
+#modcontainer #modpage #title #actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#modcontainer #modpage #title #actions #rate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+}
+#modcontainer #modpage #title #actions #rate button {
+  border: none;
+  background: transparent;
+  padding: 5px;
+  margin: 0px 5px;
+  height: 28px;
+  font-size: larger;
+  cursor: pointer;
+  transition: 100ms ease-in-out;
+}
+#modcontainer #modpage #title #actions #rate button#like {
+  color: #198754;
+}
+#modcontainer #modpage #title #actions #rate button#like:hover {
+  color: #13663f;
+}
+#modcontainer #modpage #title #actions #rate button#dislike {
+  color: #dc3545;
+  transform: rotateY(180deg);
+}
+#modcontainer #modpage #title #actions #rate button#dislike:hover {
+  color: #bd2130;
+}
+#modcontainer #modpage #title #actions #rate #rating {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  height: 5px;
+  width: 80px;
+  transform: translateY(2px);
+}
+#modcontainer #modpage #title #actions #rate #rating::-webkit-progress-bar {
+  background: #dc3545;
+}
+#modcontainer #modpage #title #actions #rate #rating::-webkit-progress-value {
+  background: #198754;
+}
+#modcontainer #modpage #title #actions #rate #rating.empty::-webkit-progress-bar {
+  background: #212529;
+}
+#modcontainer #modpage #content {
+  margin: 0px 40px;
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+#modcontainer #modpage #content #desc {
+  flex-grow: 1;
+}
+#modcontainer #modpage #content #info {
+  flex-shrink: 0;
+  width: 300px;
+  background: #212529;
+  padding: 14px;
+  border-radius: 14px;
+  margin-left: 8px;
+}
+#modcontainer #modpage #content #info > * {
+  margin: 2px;
 }
 
 #options {
@@ -499,7 +744,7 @@ context button:hover#del {
   background: #dc3545;
 }
 
-button.style, label.button {
+button.style, .button {
   border: 1px solid #495057;
   border-radius: 8px;
   background: #343a40;
@@ -510,28 +755,31 @@ button.style, label.button {
   font-size: 13px;
   min-width: 60px;
 }
-button.style.blue, label.button.blue {
+button.style.blue, .button.blue {
   background: #0d6efd;
+  border-color: #024dbc;
 }
-button.style.red, label.button.red {
+button.style.red, .button.red {
   background: #dc3545;
+  border-color: #bd2130;
 }
-button.style.green, label.button.green {
+button.style.green, .button.green {
   background: #198754;
+  border-color: #13663f;
 }
-button.style.disabled, label.button.disabled {
+button.style.disabled, .button.disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-button.style:hover:not(.disabled), label.button:hover:not(.disabled) {
+button.style:hover:not(.disabled), .button:hover:not(.disabled) {
   background: #495057;
 }
-button.style:hover:not(.disabled).blue, label.button:hover:not(.disabled).blue {
+button.style:hover:not(.disabled).blue, .button:hover:not(.disabled).blue {
   background: #024dbc;
 }
-button.style:hover:not(.disabled).red, label.button:hover:not(.disabled).red {
+button.style:hover:not(.disabled).red, .button:hover:not(.disabled).red {
   background: #bd2130;
 }
-button.style:hover:not(.disabled).green, label.button:hover:not(.disabled).green {
+button.style:hover:not(.disabled).green, .button:hover:not(.disabled).green {
   background: #13663f;
 }/*# sourceMappingURL=index.css.map */

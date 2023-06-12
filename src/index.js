@@ -4,9 +4,9 @@ const path = require('path')
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    minWidth: 640,
+    minWidth: 800,
     width: 1280,
-    minHeight: 480,
+    minHeight: 600,
     height: 720,
     frame: false,
     icon: path.join(__dirname, '../build/icon.ico'),
@@ -28,22 +28,14 @@ const createWindow = () => {
     mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
   })
 
-  if (process.plaftorm == 'win32') app.setAsDefaultProtocolClient('jumpstart', process.execPath, [ resolve(process.argv[1]) ])
-  else app.setAsDefaultProtocolClient('jumpstart', process.execPath)
-
-  app.on('open-url', (e, url) => {
-    e.preventDefault()
-    mainWindow.webContents.send('open-url', url)
-  })
+  app.setAsDefaultProtocolClient('jumpstart')
 
   const gotTheLock = app.requestSingleInstanceLock()
 
   if (!gotTheLock) return app.quit()
   else {
     app.on('second-instance', (e, argv) => {
-      if (process.platform == 'win32') {
-        mainWindow.webContents.send('open-url', argv[argv.length - 1])
-      }
+      mainWindow.webContents.send('open-url', argv[argv.length - 1])
 
       if (mainWindow) {
         if (mainWindow.isMinimized()) myWindow.restore()

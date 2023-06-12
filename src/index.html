@@ -9,17 +9,38 @@
 
 <body>
   <context></context>
-  <div id="modalcontainer"><div id="modal"><span id="topsection"><h1></h1><button>&#xF62A;</button></span><main></main></div></div>
+  <div id="modalcontainer">
+    <div id="modal"><span id="topsection">
+        <h1></h1><button>&#xF62A;</button>
+      </span>
+      <main></main>
+    </div>
+  </div>
   <div id="tooltip"></div>
+
+  <div id="modcontainer" style="padding-top: 250px; display: none; opacity: 0;">
+    <div id="modpage"></div>
+  </div>
   <nav>
     <span>
-      <img src="../assets/icon.png" width="25" height="25" style="margin-right: 10px;" alt="JumpStart Logo"/>
+      <img src="../assets/icon.png" width="25" height="25" style="margin-right: 10px;" alt="JumpStart Logo" />
       <h4>JumpStart</h4>
     </span>
     <span id="controls">
-        <div id="min"><svg width="12" height="12" viewBox="0 0 12 12"><rect fill="currentColor" width="10" height="1" x="1" y="6"></rect></svg></div>
-        <div id="max"><svg width="12" height="12" viewBox="0 0 12 12"><rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect></svg></div>
-        <div onclick="window.close()" id="close"><svg width="12" height="12" viewBox="0 0 12 12"><polygon fill="currentColor" fill-rule="evenodd" points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1"></polygon></svg></div>
+      <button onclick="location.reload()"
+        style="width: 20px; height: 20px; padding: 5px; margin: 5px; border-radius: 15px"><span
+          style="transform: translateY(1px)">&#xF117;</span></button>
+      <div id="min" style="margin-left: 15px"><svg width="12" height="12" viewBox="0 0 12 12">
+          <rect fill="currentColor" width="10" height="1" x="1" y="6"></rect>
+        </svg></div>
+      <div id="max"><svg width="12" height="12" viewBox="0 0 12 12">
+          <rect width="9" height="9" x="1.5" y="1.5" fill="none" stroke="currentColor"></rect>
+        </svg></div>
+      <div onclick="window.close()" id="close"><svg width="12" height="12" viewBox="0 0 12 12">
+          <polygon fill="currentColor" fill-rule="evenodd"
+            points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1">
+          </polygon>
+        </svg></div>
     </span>
   </nav>
 
@@ -33,18 +54,28 @@
     <span>
       <a href="javascript:page('settings')" data-page="settings"><span>&#xF3E5;</span>Settings</a>
       <a href="javascript:page('account')" data-page="account"><span>&#xF4D7;</span>My Account</a>
-      <a href="javascript:page('installations')" data-page="installations"><span><img class="img" src="../assets/installations.png" width="24" height="24"></span>Installations</a>
+      <a href="javascript:page('installations')" data-page="installations"><span><img class="img"
+            src="../assets/installations.png" width="24" height="24"></span>Installations</a>
     </span>
   </aside>
 
   <main>
     <center style="height: 100%; flex-direction: column;">
-      <img id="icon" src="../assets/icon.svg" style="transform: translateY(60px); opacity: 0; transition: 400ms ease-out" height="100" width="100" alt="JumpStartLogo">
+      <img id="icon" src="../assets/icon.svg"
+        style="transform: translateY(60px); opacity: 0; transition: 400ms ease-out" height="100" width="100"
+        alt="JumpStartLogo">
       <loading id="load" style="position: absolute; bottom: calc(50% - 110px); opacity: 0"></loading>
-      <span style="font-size: 70%; opacity: 0; transition: 200ms ease-out; position: absolute; bottom: calc(50% - 130px);" class="muted" id="verboseloading">Loading</span>
-      <h2 style="margin: 10px 0px; transform: translateY(10px); opacity: 0; transition: 200ms ease-out">Welcome Back!</h2>
-      <p style="transform: translateY(10px); opacity: 0; transition: 200ms ease-out">To continue, navigate the sidebar to the left.</p>
-      <p style="font-size: 70%; transform: translateY(10px); opacity: 0; transition: 200ms ease-out" class="muted">Not sure where to go? <a href="javascript:page('store')">Visit the Store</a>, <a href="javascript:page('library')">Manage your Mods</a>, or <a href="javascript:page('settings')">Change some Settings</a>.</p>
+      <span
+        style="font-size: 70%; opacity: 0; transition: 200ms ease-out; position: absolute; bottom: calc(50% - 130px);"
+        class="muted" id="verboseloading">Loading</span>
+      <h2 style="margin: 10px 0px; transform: translateY(10px); opacity: 0; transition: 200ms ease-out">Welcome Back!
+      </h2>
+      <p style="transform: translateY(10px); opacity: 0; transition: 200ms ease-out">To continue, navigate the sidebar
+        to the left.</p>
+      <p style="font-size: 70%; transform: translateY(10px); opacity: 0; transition: 200ms ease-out" class="muted">Not
+        sure where to go? <a href="javascript:page('store')">Visit the Store</a>, <a
+          href="javascript:page('library')">Manage your Mods</a>, or <a href="javascript:page('settings')">Change some
+          Settings</a>.</p>
     </center>
   </main>
 </body>
@@ -55,48 +86,224 @@
   const fs = require('fs')
   const path = require('path')
   const https = require('https')
+  const markdown = require('markdown-it')()
   const modal = require('./modal')
   const setup = require('./setup')
   const page = require('./page')
   const package = require('../package.json')
   let storage
-  try { fs.mkdirSync(path.join(process.env.LOCALAPPDATA, 'JumpStart')) } catch {}
-  try { storage = JSON.parse(atob(fs.readFileSync(path.join(process.env.LOCALAPPDATA, 'JumpStart/storage.json'))).toString()) } catch { storage = {} }
+  try { fs.mkdirSync(path.join(process.env.LOCALAPPDATA ? process.env.LOCALAPPDATA : process.env.HOME, 'JumpStart')) } catch { }
+  try { storage = JSON.parse(atob(fs.readFileSync(path.join(process.env.LOCALAPPDATA ? process.env.LOCALAPPDATA : process.env.HOME, 'JumpStart/storage.json'))).toString()) } catch { storage = {} }
   const mods = {}
   let store = []
   let userdata = null
 
   document.getElementById('min').addEventListener('click', () => {
-      ipcRenderer.send('min')
+    ipcRenderer.send('min')
   })
 
   document.getElementById('max').addEventListener('click', () => {
-      ipcRenderer.send('max')
+    ipcRenderer.send('max')
   })
 
   ipcRenderer.on('open-url', (e, url) => {
     let u = new URL(url)
     if (document.querySelector(`aside span a[data-page="account"]`).style.background == 'rgb(52, 58, 64)' && u.pathname == '//discord/') {
-      fetch('https://storage.kontroll.dev/jumpstart/auth', {
+      fetch('http://173.94.235.129:8050/auth', {
         method: 'POST',
         headers: {
-            'Code': u.searchParams.get('code'),
-            'Redirect-URI': 'https://gdjumpstart.org/discord'
+          'Code': u.searchParams.get('code'),
+          'Redirect-URI': 'https://gdjumpstart.org/discord'
         }
       }).then(res => { return res.json() }).then(res => {
-        if (res.error) return     
-        storage.id = res.id
-        storage.auth = res.auth
+        if (res.error) return
+        storage.ID = res.id
+        storage.AUTH = res.auth
         location.reload()
       })
     }
-  })        
+  })
 
   window.onunload = async e => {
-    await fs.writeFileSync(path.join(process.env.LOCALAPPDATA, 'JumpStart/storage.json'), btoa(JSON.stringify(storage)))
+    await fs.writeFileSync(path.join(process.env.LOCALAPPDATA ? process.env.LOCALAPPDATA : process.env.HOME, 'JumpStart/storage.json'), btoa(JSON.stringify(storage)))
   }
 
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+  const mod = async modid => {
+    let container = document.getElementById('modcontainer')
+    let page = document.getElementById('modpage')
+
+    if (!storage.SFX) container.style.backdropFilter = 'grayscale(1)'
+    else container.style.backdropFilter = ''
+
+    let moddata = await new Promise(resolve => {
+      fetch('http://173.94.235.129:8050/mod?id=' + modid, { headers: { 'ID': storage.ID } })
+        .then(res => res.json()).then(res => resolve(res))
+    })
+
+    let descstatus
+    let desc = await new Promise(resolve => {
+      fetch(`http://173.94.235.129:8050/content/${moddata.name}/readme.md`).then(res => { descstatus = res; return res.text() }).then(res => resolve(markdown.render(res)))
+    })
+
+    if (desc == '') desc = '<font style="font-style: italic; color: #6c757d;">Description Empty.</font>'
+    else if (descstatus.status == 404) desc = '<font style="font-style: italic; color: #6c757d;">No Description Provided.</font>'
+    else if (!descstatus.ok) desc = '<font style="font-style: italic; color: #6c757d;">Could Not Retrieve Description.</font>'
+
+    const tagcolour = t => {
+      switch (t) {
+        case 'utility':
+          return 'a9a0fa'
+          break
+        case 'enhancements':
+          return '92fa86'
+          break
+        case 'developer':
+          return 'faa56e'
+          break
+        case 'gameplay':
+          return 'faeeac'
+          break
+        case 'editor':
+          return 'fa95d9'
+          break
+        case 'cosmetic':
+          return '7df6fa'
+          break
+      }
+    }
+
+    page.innerHTML = await `<div id="header" style="
+      background-image: url('${moddata.header ? `http://173.94.235.129:8050/content/${moddata.name}/header.png` : '../assets/defaultbanner.png'}')
+    "><button id="close"><span style="transform: translateY(2px)">&#xF62A;</span></button></div>
+    <div id="title">
+      <span id="info">
+        <img src="${moddata.icon ? `http://173.94.235.129:8050/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
+        <span style="overflow: hidden;"><h1 style="overflow: hidden; text-overflow: ellipsis">${moddata.name}</h1><p style="overflow: hidden; text-overflow: ellipsis">${moddata.author}</p></span>
+      </span>
+      <span id="actions">
+        <button class="style blue" style="padding: 9px 22px;">Download</button>
+        <span id="rate"><button id="like">&#xF407;</button><progress id="rating"></progress><button id="dislike">&#xF405;</button></span>
+        <p id="ratenum"></p>
+      </span>
+    </div>
+    <div id="content">
+      <div id="desc">${desc}</div>
+      <div id="info">
+        <a style="display: flex; align-items: center; color: #fff;" href="javascript:shell.openExternal('${moddata.author_link}')">${moddata.author_hash && moddata.author_id ? `<img style="height: 32px; border-radius: 4px; margin-right: 5px" src="https://cdn.discordapp.com/avatars/${moddata.author_id}/${moddata.author_hash}.png?size=64">` : '<svg style="height: 32px; width: 32px; margin-right: 5px;" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/></svg>'}${moddata.author}</a>
+        <a style="color: #fff;" href="javascript:shell.openExternal('${moddata.repository}')"><font style="transform: translateY(2px); display: inline-block;">&#xF3ED;</font> Repository</a>
+        <p>Version <strong>${moddata.version}</strong></p>
+        <p><strong>${moddata.downloads.length}</strong> Download${moddata.downloads.length == 1 ? '' : 's'}</p>
+        <span style="display: flex; flex-flow: wrap; margin: 0px; margin-top: 28px">${moddata.tags.map(t => `<span style="display: flex; justify-content: center; align-items: center; color: #${tagcolour(t.toLowerCase())}; padding: 2px 5px; margin: 2px; background: #0004; border-radius: 5px;">${t}</span>`).join('')}</span>
+        ${moddata.author_id == undefined ? '<button class="style" style="margin-top: 28px; width: 100%">Claim this Mod</button>' : ''}
+      </div>
+    </div>`
+
+    let likes = moddata.likes.length
+    let dislikes = moddata.dislikes.length
+
+    let progress = document.querySelector('#modpage #rating')
+
+    progress.value = likes
+    progress.max = likes + dislikes
+
+    if (likes + dislikes == 0) progress.classList.add('empty')
+    else progress.classList.remove('empty')
+
+    let ratenum = document.querySelector('#modpage #ratenum')
+
+    ratenum.innerText = likes - dislikes
+
+    if (likes - dislikes > 0) ratenum.style.color = '#198754'
+    if (likes - dislikes <= 0) ratenum.style.color = '#dc3545'
+    if (likes + dislikes == 0) ratenum.style.color = '#212529'
+
+    if (moddata.dislikes.indexOf(storage.ID) != -1) document.querySelector('#modpage #dislike').innerText = '\uF404'
+    if (moddata.likes.indexOf(storage.ID) != -1) document.querySelector('#modpage #like').innerText = '\uF406'
+
+    function resize() {
+      let content = document.querySelector('#modpage #content')
+      let info = document.querySelector('#modpage #content #info')
+      if (content.getBoundingClientRect().width < 800) {
+        content.style.flexDirection = 'column-reverse'
+        info.style.margin = '14px 0px'
+        info.style.width = 'calc(100% - 44px)'
+      } else {
+        content.style.flexDirection = ''
+        info.style.margin = ''
+        info.style.width = ''
+      }
+    }
+
+    container.style.display = ''
+    container.style.transition = ''
+    await wait(100)
+    resize()
+    container.style.paddingTop = ''
+    container.style.opacity = ''
+
+    document.querySelector('#modpage #close').onclick = async () => {
+      let container = document.getElementById('modcontainer')
+      container.style.transition = '200ms ease-in'
+      await wait(100)
+      container.style.paddingTop = '250px'
+      container.style.opacity = '0'
+      await wait(500)
+      container.style.display = 'none'
+    }
+
+    document.querySelector('#modcontainer').onclick = async e => {
+      let container = document.getElementById('modcontainer')
+      if (e.target.closest('#modpage')) return
+      container.style.transition = '200ms ease-in'
+      await wait(100)
+      container.style.paddingTop = '250px'
+      container.style.opacity = '0'
+      await wait(500)
+      container.style.display = 'none'
+    }
+
+    let rating = false
+
+    function rate(type) {
+      if (rating) return
+      rating = true
+
+      fetch(`http://173.94.235.129:8050/rate/?id=${modid}&type=${type}`, {
+        headers: {
+          auth: storage.AUTH,
+          id: storage.ID
+        }
+      }).then(res => res.json()).then(res => {
+        rating = false
+
+        if (res.action == 'added_dislike') document.querySelector('#modpage #dislike').innerText = '\uF404'
+        if (res.action == 'removed_dislike') document.querySelector('#modpage #dislike').innerText = '\uF405'
+        if (res.action == 'added_like') document.querySelector('#modpage #like').innerText = '\uF406'
+        if (res.action == 'removed_like') document.querySelector('#modpage #like').innerText = '\uF407'
+
+        progress.value = res.likes
+        progress.max = res.likes + res.dislikes
+
+        if (res.likes + res.dislikes == 0) progress.classList.add('empty')
+        else progress.classList.remove('empty')
+
+        let ratenum = document.querySelector('#modpage #ratenum')
+
+        ratenum.innerText = res.likes - res.dislikes
+
+        if (res.likes - res.dislikes > 0) ratenum.style.color = '#198754'
+        if (res.likes - res.dislikes <= 0) ratenum.style.color = '#dc3545'
+        if (res.likes + res.dislikes == 0) ratenum.style.color = '#212529'
+      })
+    }
+
+    document.querySelector('#modpage #like').onclick = () => rate('like')
+    document.querySelector('#modpage #dislike').onclick = () => rate('dislike')
+
+    window.onresize = resize
+  }
 
   window.addEventListener('load', async () => {
     await wait(500)
@@ -123,7 +330,10 @@
         storage.UPDATE = 0
         storage.VBL = false
         storage.SFX = true
-      } else {        
+        vbl.innerText = 'Done'
+      } else {
+        vbl.innerText = 'Done'
+
         vbl.innerText = 'Reading Mods'
 
         let _m = await fs.readdirSync(path.join(storage.GDDIR, 'quickldr'))
@@ -144,51 +354,28 @@
 
         vbl.innerText = 'Done'
 
-        vbl.innerText = 'Loading Store Content'
-
-        await new Promise(resolve => {
-          https.get({
-            hostname: 'api.gdjumpstart.org',
-            path: '/store',
-            headers: {
-              'User-Agent': navigator.userAgent + `User ${storage.UUID}`
-            }
-          }, res => {
-            let data = ''
-            res.on('data', (d) => data += d)
-            res.on('end', async () => {
-              store = JSON.parse(data).sort((a, b) => b.downloads - a.downloads)
-
-              resolve()
-            })
-          })
-        })
-
-        vbl.innerText = 'Done'
-
-        if (storage.id != undefined && storage.auth != undefined) {
+        if (storage.ID != undefined && storage.AUTH != undefined) {
           vbl.innerText = 'Getting User Data'
 
           await new Promise(resolve => {
-            fetch('https://storage.kontroll.dev/jumpstart/user', {
-              method: 'GET',
-              headers: {
-                  'ID': storage.id,
-                  'Auth': storage.auth
-              }
-            }).then(res => { return res.json() }).then(res => {
-              if (res.error) return resolve()
-              userdata = res
-              document.querySelectorAll('aside span a')[5].innerHTML = `<span><img class="img" src="https://cdn.discordapp.com/avatars/${res.id}/${res.avatar}.png?size=64" style="border-radius: 3px; background: #121313" width="24" height="24"></span> My Account`
-              resolve()
-            })
+            fetch('http://173.94.235.129:8050/user', { headers: { 'ID': storage.ID, 'Auth': storage.AUTH } })
+              .then(res => res.json()).then(res => {
+                if (data.error) {
+                  storage.ID = undefined
+                  storage.AUTH = undefined
+                  return resolve()
+                }
+                userdata = data
+                document.querySelectorAll('aside span a')[5].innerHTML = `<span><img class="img" src="https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png?size=64" style="border-radius: 3px; background: #121313" width="24" height="24"></span> My Account`
+                resolve()
+              })
           })
 
           vbl.innerText = 'Done'
         }
 
         vbl.innerText = 'Checking for Updates'
-        
+
         await new Promise(async resolve => {
           https.get({
             hostname: 'api.github.com',
@@ -211,7 +398,7 @@
               if (data == null) {
                 vbl.innerText = 'Release Not Found'
                 resolve()
-                return 
+                return
               }
 
               vbl.innerText = 'Done'

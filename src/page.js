@@ -2,6 +2,16 @@ module.exports = async (pg, ex = {}) => {
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
     if (document.querySelector(`aside span a[data-page="${pg}"]`).style.background == 'rgb(52, 58, 64)' && !ex.bypasscheck) return
 
+    let container = document.getElementById('modcontainer')
+    if (container.style.display == '') {
+      container.style.transition = '200ms ease-in'
+      await wait(100)
+      container.style.paddingTop = '250px'
+      container.style.opacity = '0'
+      await wait(500)
+      container.style.display = 'none'
+    }
+
     document.querySelector('body > main > *').style.opacity = '0'
     await wait(200)
 
@@ -169,7 +179,7 @@ module.exports = async (pg, ex = {}) => {
 
                         read.pipe(write)
 
-                        fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), mod.name, { flag: 'a' })
+                        fs.writeFileSync(path.join(storage.GDDIR, '/quickldr/settings.txt'), `\r\n${mod.name}`, { flag: 'a' })
                         mods[mod.name.slice(0, -4)] = { enabled: true, time: mod.lastModified }
                         page('library', { bypasscheck: true })
 
@@ -226,49 +236,113 @@ module.exports = async (pg, ex = {}) => {
                 
                 document.querySelector('body > main').innerHTML = `<div style="padding: 10px 14px; min-height: calc(100vh - 53px);">
                     <div><h1>Store</h1><p>Find, Check Out, and Download Dozens of Mods.</p></div>
-                    <div id="store"><loading id="load" style="position: absolute; top: calc(50% + 15px); left: calc(50% + 117px);"></loading></div>
+                    <div id="store">
+                        <h2>Popular</h2>
+                        <div data-category="popular">
+                            <div style="display: flex; justify-content: center; align-items: center; min-height: 160px; width: 100%;"><loading></loading></div>
+                        </div>
+                        <h2>Editor</h2>
+                        <div data-category="editor">
+                            <div style="display: flex; justify-content: center; align-items: center; min-height: 160px; width: 100%;"><loading></loading></div>
+                        </div>
+                    </div>
                 </div>`
 
-                document.getElementById('store').innerHTML = '<h2>Popular</h2>'
-                let popular = document.getElementById('store').appendChild(document.createElement('div'))
+                let popular = document.querySelector('#store [data-category="popular"]')
+                let editor = document.querySelector('#store [data-category="editor"]')
+
+                let mpopular = await new Promise(resolve => {
+                    fetch('http://173.94.235.129:8050/store?l=3')
+                        .then(res => res.json()).then(res => resolve(res.store))
+                })
+
+                popular.innerHTML = ''
                 
-                let p = 0
-                for (let i = 0; i < store.length; i++) {
-                    let moddata = store[i]
-                    // if (moddata.downloads > 0 && p < 15) {
-                        popular.innerHTML += `<button onclick="location.href = 'https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/${moddata.name}.dll'" style="
-                            background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
-                        ">
-                            <div style="${storage.SFX ? '' : 'backdrop-filter: none; background: #0009'}">
-                                <img src="${moddata.icon ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
-                                <span>
-                                    <h4>${moddata.name}</h4>
-                                    <p>${moddata.author} - v${moddata.version}</p>
+                for (let i = 0; i < mpopular.length; i++) {
+                    let moddata = mpopular[i]
+                    let rating = moddata.likes.length - moddata.dislikes.length
+                    let tags = ''
+
+                    for (let i = 0; i < moddata.tags.length; i++) {
+                        let tag = moddata.tags[i]
+
+                        tags += `<span><img src="../assets/tags/${tag}.png"><p>${tag}</p></span>`
+                    }
+
+                    popular.innerHTML +=
+                    `<button onclick="mod('${moddata.id}')" style="
+                        background-image: url('${moddata.header ? `http://173.94.235.129:8050/content/${moddata.name}/header.png` : ''}');
+                    ">
+                        <div class="main ${storage.SFX ? 'sfx' : ''}">
+                            <img src="${moddata.icon ? `http://173.94.235.129:8050/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
+                            <span class="middle">
+                                <span class="top">
+                                    <h1>${moddata.name}</h1>
+                                    <div class="divider"></div>
+                                    <p>by ${moddata.author}</p>
                                 </span>
-                            </div>
-                        </button>`
-                        p++
-                    // }
+                                <span class="mid">
+                                    <p>${moddata.description}</p>
+                                </span>
+                                <span class="bottom">
+                                    <p><span style="font-size: 16px">\uF2D4</span>${moddata.version}</p>
+                                    <p><span>\uF29B</span>${moddata.downloads.length}</p>
+                                    <p><span style="${rating >= 0 ? '' : 'transform: rotateY(180deg);'}">${rating >= 0 ? '\uF407' : '\uF405'}</span>${rating}</p>
+                                </span>
+                            </span>
+                            <span class="end">
+                                <div class="button">View More</div>
+                                <div class="tags">${tags}</div>
+                            </span>
+                        </div>
+                    </button>`
                 }
 
-                document.getElementById('store').innerHTML += '<h2>Editor</h2>'
-                let editor = document.getElementById('store').appendChild(document.createElement('div'))
+                let meditor = await new Promise(resolve => {
+                    fetch('http://173.94.235.129:8050/store?l=3&t=editor')
+                        .then(res => res.json()).then(res => resolve(res.store))
+                })
 
-                for (let i = 0; i < store.length; i++) {
-                    let moddata = store[i]
-                    if (moddata.tags.indexOf('Editor') != -1) {
-                        editor.innerHTML += `<button onclick="location.href = 'https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/${moddata.name}.dll'" style="
-                            background-image: url(${moddata.header ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/header.png` : '../assets/defaultbanner.png'})
-                        ">
-                            <div style="${storage.SFX ? '' : 'backdrop-filter: none; background: #0009'}">
-                                <img src="${moddata.icon ? `https://raw.githubusercontent.com/GD-JumpStart/Mods/main/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
-                                <span>
-                                    <h4>${moddata.name}</h4>
-                                    <p>${moddata.author} - v${moddata.version}</p>
-                                </span>
-                            </div>
-                        </button>`
+                editor.innerHTML = ''
+                
+                for (let i = 0; i < meditor.length; i++) {
+                    let moddata = meditor[i]
+                    let rating = moddata.likes.length - moddata.dislikes.length
+                    let tags = ''
+
+                    for (let i = 0; i < moddata.tags.length; i++) {
+                        let tag = moddata.tags[i]
+
+                        tags += `<span><img src="../assets/tags/${tag}.png"><p>${tag}</p></span>`
                     }
+
+                    editor.innerHTML +=
+                    `<button onclick="mod('${moddata.id}')" style="
+                        background-image: url('${moddata.header ? `http://173.94.235.129:8050/content/${moddata.name}/header.png` : ''}');
+                    ">
+                        <div class="main ${storage.SFX ? 'sfx' : ''}">
+                            <img src="${moddata.icon ? `http://173.94.235.129:8050/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
+                            <span class="middle">
+                                <span class="top">
+                                    <h1>${moddata.name}</h1>
+                                    <div class="divider"></div>
+                                    <p>by ${moddata.author}</p>
+                                </span>
+                                <span class="mid">
+                                    <p>${moddata.description}</p>
+                                </span>
+                                <span class="bottom">
+                                    <p><span style="font-size: 16px">\uF2D4</span>${moddata.version}</p>
+                                    <p><span>\uF29B</span>${moddata.downloads.length}</p>
+                                    <p><span style="${rating >= 0 ? '' : 'transform: rotateY(180deg);'}">${rating >= 0 ? '\uF407' : '\uF405'}</span>${rating}</p>
+                                </span>
+                            </span>
+                            <span class="end">
+                                <div class="button">View More</div>
+                                <div class="tags">${tags}</div>
+                            </span>
+                        </div>
+                    </button>`
                 }
 
                 resolve()
@@ -322,7 +396,7 @@ module.exports = async (pg, ex = {}) => {
 
                 let account = document.getElementById('account')
 
-                if (storage.id == undefined && storage.auth == undefined) return account.innerHTML += '<button class="style" style="display: flex;" onclick="shell.openExternal(\'https://discord.com/api/oauth2/authorize?client_id=1064678297327382588&redirect_uri=https://discord.com/api/oauth2/authorize?client_id=1064678297327382588&redirect_uri=https%3A%2F%2Fgdjumpstart.org%2Fdiscord&response_type=code&scope=identify&response_type=code&scope=identify\')"><font style="font-size: 17px; height: 17px; width: 17px; display: block; margin-right: 4px;">&#xF300;</font> Log In with Discord</button>'
+                if (storage.ID == undefined || storage.AUTH == undefined) return account.innerHTML += '<button class="style" style="display: flex;" onclick="shell.openExternal(\'https://discord.com/api/oauth2/authorize?client_id=1064678297327382588&redirect_uri=https://discord.com/api/oauth2/authorize?client_id=1064678297327382588&redirect_uri=https%3A%2F%2Fgdjumpstart.org%2Fdiscord&response_type=code&scope=identify&response_type=code&scope=identify\')"><font style="font-size: 17px; height: 17px; width: 17px; display: block; margin-right: 4px;">&#xF300;</font> Log In with Discord</button>'
 
                 account.innerHTML += `<img src="https://cdn.discordapp.com/avatars/${userdata.id}/${userdata.avatar}.png">`
 
