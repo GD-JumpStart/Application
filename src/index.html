@@ -80,6 +80,9 @@
 </body>
 
 <script>
+  document.querySelector('body > main > *').style.opacity = '1'
+  document.querySelector('body > main > *').style.transition = 'opacity 200ms ease-in-out'
+
   const { ipcRenderer, shell } = require('electron')
   const { exec } = require('node:child_process')
   const fs = require('fs')
@@ -108,7 +111,7 @@
   ipcRenderer.on('open-url', (e, url) => {
     let u = new URL(url)
     if (document.querySelector(`aside span a[data-page="account"]`).style.background == 'rgb(52, 58, 64)' && u.pathname == '//discord/') {
-      fetch('http://173.94.235.129:8050/auth', {
+      fetch('https://api.gdjumpstart.org/auth', {
         method: 'POST',
         headers: {
           'Code': u.searchParams.get('code'),
@@ -137,13 +140,13 @@
     else container.style.backdropFilter = ''
 
     let moddata = await new Promise(resolve => {
-      fetch('http://173.94.235.129:8050/mod?id=' + modid, { headers: { 'ID': storage.ID } })
+      fetch('https://api.gdjumpstart.org/mod?id=' + modid, { headers: { 'ID': storage.ID } })
         .then(res => res.json()).then(res => resolve(res))
     })
 
     let descstatus
     let desc = await new Promise(resolve => {
-      fetch(`http://173.94.235.129:8050/content/${moddata.name}/readme.md`).then(res => { descstatus = res; return res.text() }).then(res => resolve(markdown.render(res)))
+      fetch(`https://api.gdjumpstart.org/content/${moddata.name}/readme.md`).then(res => { descstatus = res; return res.text() }).then(res => resolve(markdown.render(res)))
     })
 
     if (desc == '') desc = '<font style="font-style: italic; color: #6c757d;">Description Empty.</font>'
@@ -175,11 +178,11 @@
 
     page.innerHTML = await `<button id="close"><span style="transform: translateY(2px)">&#xF62A;</span></button>
     <div id="header" style="
-      background-image: url('${moddata.header ? `http://173.94.235.129:8050/content/${moddata.name}/header.png` : '../assets/defaultbanner.png'}')
+      background-image: url('${moddata.header ? `https://api.gdjumpstart.org/content/${moddata.name}/header.png` : '../assets/defaultbanner.png'}')
     "></div>
     <div id="title">
       <span id="info">
-        <img src="${moddata.icon ? `http://173.94.235.129:8050/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
+        <img src="${moddata.icon ? `https://api.gdjumpstart.org/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
         <span style="overflow: hidden;"><h1 style="overflow: hidden; text-overflow: ellipsis">${moddata.name}</h1><p style="overflow: hidden; text-overflow: ellipsis">${moddata.author}</p></span>
       </span>
       <span id="actions">
@@ -270,7 +273,7 @@
       if (rating) return
       rating = true
 
-      fetch(`http://173.94.235.129:8050/rate/?id=${modid}&type=${type}`, {
+      fetch(`https://api.gdjumpstart.org/rate/?id=${modid}&type=${type}`, {
         headers: {
           auth: storage.AUTH,
           id: storage.ID
@@ -358,7 +361,7 @@
           vbl.innerText = 'Getting User Data'
 
           await new Promise(resolve => {
-            fetch('http://173.94.235.129:8050/user', { headers: { 'ID': storage.ID, 'Auth': storage.AUTH } })
+            fetch('https://api.gdjumpstart.org/user', { headers: { 'ID': storage.ID, 'Auth': storage.AUTH } })
               .then(res => res.json()).then(res => {
                 if (data.error) {
                   storage.ID = undefined

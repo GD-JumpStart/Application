@@ -153,8 +153,9 @@ main center {
 main .muted {
   color: #6c757d;
 }
-main * {
-  transition: opacity 200ms ease-in-out;
+
+main > * {
+  opacity: 0;
 }
 
 h1, h2, h3, h4, h5, h6, p {

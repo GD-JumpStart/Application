@@ -4,16 +4,16 @@ module.exports = async (pg, ex = {}) => {
 
     let container = document.getElementById('modcontainer')
     if (container.style.display == '') {
-      container.style.transition = '200ms ease-in'
-      await wait(100)
+      container.style.transition = '200ms'
+      await new Promise(r => requestAnimationFrame(r))
       container.style.paddingTop = '250px'
       container.style.opacity = '0'
-      await wait(500)
+      await wait(300)
       container.style.display = 'none'
     }
 
     document.querySelector('body > main > *').style.opacity = '0'
-    await wait(200)
+    await wait(300)
 
     document.querySelector('body > main').innerHTML = ''
     document.querySelectorAll(`aside span a`).forEach(e => { e.style.background = '' })
@@ -252,7 +252,7 @@ module.exports = async (pg, ex = {}) => {
                 let editor = document.querySelector('#store [data-category="editor"]')
 
                 let mpopular = await new Promise(resolve => {
-                    fetch('http://173.94.235.129:8050/store?l=3')
+                    fetch('https://api.gdjumpstart.org/store?l=3')
                         .then(res => res.json()).then(res => resolve(res.store))
                 })
 
@@ -271,10 +271,10 @@ module.exports = async (pg, ex = {}) => {
 
                     popular.innerHTML +=
                     `<button onclick="mod('${moddata.id}')" style="
-                        background-image: url('${moddata.header ? `http://173.94.235.129:8050/content/${moddata.name}/header.png` : ''}');
+                        background-image: url('${moddata.header ? `https://api.gdjumpstart.org/content/${moddata.name}/header.png` : ''}');
                     ">
                         <div class="main ${storage.SFX ? 'sfx' : ''}">
-                            <img src="${moddata.icon ? `http://173.94.235.129:8050/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
+                            <img src="${moddata.icon ? `https://api.gdjumpstart.org/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
                             <span class="middle">
                                 <span class="top">
                                     <h1>${moddata.name}</h1>
@@ -299,7 +299,7 @@ module.exports = async (pg, ex = {}) => {
                 }
 
                 let meditor = await new Promise(resolve => {
-                    fetch('http://173.94.235.129:8050/store?l=3&t=editor')
+                    fetch('https://api.gdjumpstart.org/store?l=3&t=editor')
                         .then(res => res.json()).then(res => resolve(res.store))
                 })
 
@@ -318,10 +318,10 @@ module.exports = async (pg, ex = {}) => {
 
                     editor.innerHTML +=
                     `<button onclick="mod('${moddata.id}')" style="
-                        background-image: url('${moddata.header ? `http://173.94.235.129:8050/content/${moddata.name}/header.png` : ''}');
+                        background-image: url('${moddata.header ? `https://api.gdjumpstart.org/content/${moddata.name}/header.png` : ''}');
                     ">
                         <div class="main ${storage.SFX ? 'sfx' : ''}">
-                            <img src="${moddata.icon ? `http://173.94.235.129:8050/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
+                            <img src="${moddata.icon ? `https://api.gdjumpstart.org/content/${moddata.name}/icon.png` : '../assets/defaultmod.png'}">
                             <span class="middle">
                                 <span class="top">
                                     <h1>${moddata.name}</h1>
@@ -409,7 +409,6 @@ module.exports = async (pg, ex = {}) => {
                 resolve()
         }
     })
-
-    await wait(200)
+    await wait(100)
     document.querySelector('body > main > *').style.opacity = '1'
 }
